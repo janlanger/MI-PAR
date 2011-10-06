@@ -5,6 +5,8 @@
  * Created on 5. шнjen 2011, 14:57
  */
 
+#include <locale.h>
+
 #include "Item.h"
 #include "Pole.h"
 #include "Disc.h"
@@ -53,8 +55,13 @@ void Item::setActivePole(int id){
 }
 
 void Item::generateOptions(){
+    if(this->poles[activePole].getNoDiscs() == 0) {
+        this->noOptions = 0;
+        return;
+    }
     Disc* disc;
     disc = this->poles[this->activePole].getLastDisc();
+    
     this->noOptions = 0;
     if(this->poles[this->activePole].isFinal())
     {
