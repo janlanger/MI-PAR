@@ -76,11 +76,11 @@ int main(int argc, char** argv) {
                 item->setActivePole(i);
                 while(item->hasOption()){
                     int step = item->popOption();
-                    Item* next = item;
-                    next->setPrevious(item);
-                    next->doStep(step);
-                    next->generateOptions();
-                    stack->push(next);
+                    Item next = *item;
+                    next.setPrevious(item);
+                    next.doStep(step);
+                    next.generateOptions();
+                    stack->push(&next);
                 }
             }
         }
