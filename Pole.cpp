@@ -5,6 +5,8 @@
  * Created on 5. шнjen 2011, 14:59
  */
 
+#include <locale.h>
+
 #include "Pole.h"
 #include "Disc.h"
 
@@ -12,13 +14,17 @@ Pole::Pole() {
 }
 
 Pole::Pole(const Pole& orig) {
+    this->final=orig.final;
+    Disc* d = orig.last;
+    this->last = d;
+    this->noDiscs = orig.noDiscs;
 }
 
 Pole::~Pole() {
 }
 
 bool Pole::canAddDisc(Disc* disk) {
-    return (this->last->getSize() > disk->getSize());
+    return (this->last == NULL || disk == NULL || this->last->getSize() > disk->getSize());
 }
 
 void Pole::addDisc(Disc* disc) {
