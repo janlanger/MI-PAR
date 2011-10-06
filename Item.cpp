@@ -19,7 +19,7 @@ Item::Item(int noPoles, int noDiscs) {
 }
 
 Item::Item(const Item& orig) {
-    this->activePole = orig.activePole;
+    this->activePole = 0; //we need to always start from first pole //orig.activePole;
     this->noOptions = orig.noOptions;
     this->noPoles = orig.noPoles;
     this->noDiscs = orig.noDiscs;
