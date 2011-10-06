@@ -23,6 +23,7 @@ Item* generateInitState(int n, int s){
         Pole* pole = item->getPole((time(NULL) % s));
         pole->addDisc(disc);
     }
+    item->setActivePole(0);
     item->generateOptions();
     
     return item;
@@ -51,6 +52,10 @@ int main(int argc, char** argv) {
         while(counter < limit){
             counter++;
             Item* item = stack->head();
+            if(item == NULL) {
+                //stack is empty
+                break;
+            }
             if(n == item->getPole(f)->getNoDiscs()){
                 // volat destrukci predchoziho reseni
                 int disc;
@@ -73,13 +78,14 @@ int main(int argc, char** argv) {
                 continue;
             }
             for(int i = 0; i<s; i++){
+                
                 item->setActivePole(i);
+                item->generateOptions();
                 while(item->hasOption()){
                     int step = item->popOption();
                     Item next = *item;
                     next.setPrevious(item);
                     next.doStep(step);
-                    next.generateOptions();
                     stack->push(&next);
                 }
             }
