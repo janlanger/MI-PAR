@@ -41,11 +41,11 @@ int main(int argc, char** argv) {
     int limit = 100;
     int counter = 0;  
     Step* solution = NULL;
-    Item* item = generateInitState(n, s);
-    item->getPole(f)->setFinal(true);
+    Item* initial = generateInitState(n, s);
+    initial->getPole(f)->setFinal(true);
     
     Stack* stack = new Stack();
-    stack->push(item);
+    stack->push(initial);
     
     while(!stack->isEmpty())
     {
