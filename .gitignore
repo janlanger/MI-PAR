@@ -1,4 +1,8 @@
-
+Makefile
+*.inc
+*stackdump
 /build
 /dist
 /nbproject
+*vcxproj*
+/Debug
