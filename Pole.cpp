@@ -11,6 +11,9 @@
 #include "Disc.h"
 
 Pole::Pole() {
+	this->last = NULL;
+	this->noDiscs = 0;
+	this->final = false;
 }
 
 Pole::Pole(const Pole& orig) {
