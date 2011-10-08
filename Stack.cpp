@@ -9,6 +9,7 @@
 #include "Item.h"
 
 Stack::Stack() {
+	this->top = NULL;
 }
 
 Stack::Stack(const Stack& orig) {

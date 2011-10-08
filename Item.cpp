@@ -16,11 +16,12 @@ Item::Item(int noPoles, int noDiscs) {
     this->noDiscs = noDiscs;
     this->poles = new Pole[noPoles];
     this->options = new bool[noPoles];
+	this->previous = NULL;
 }
 
 Item::Item(const Item& orig) {
     this->activePole = 0; //we need to always start from first pole //orig.activePole;
-    this->noOptions = orig.noOptions;
+    this->noOptions = 0;// orig.noOptions;
     this->noPoles = orig.noPoles;
     this->noDiscs = orig.noDiscs;
     this->options = orig.options;
