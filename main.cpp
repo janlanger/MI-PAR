@@ -20,7 +20,7 @@ Item* generateInitState(int n, int s){
     Item* item = new Item(s, n);
     for( int i = 0 ; i<n; i++){
         Disc* disc = new Disc(n-i);
-        Pole* pole = item->getPole((time(NULL) % s));
+        Pole* pole = item->getPole(/*(time(NULL) % s))*/0);
         pole->addDisc(disc);
     }
     item->setActivePole(0);
@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
                     
                 }
                 
-                limit == counter - 1;
+                limit = counter - 1;
             }
             if(!item->hasOption()){
                 stack->pop();
