@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
     Step* solution = NULL;
     Item* initial = generateInitState(n, s);
     initial->getPole(f)->setFinal(true);
-    
+    Item* next = NULL;
     Stack* stack = new Stack();
     stack->push(initial);
     
@@ -83,10 +83,10 @@ int main(int argc, char** argv) {
                 item->generateOptions();
                 while(item->hasOption()){
                     int step = item->popOption();
-                    Item next = *item;
-                    next.setPrevious(item);
-                    next.doStep(step);
-                    stack->push(&next);
+					next = new Item(*item);
+                    next->setPrevious(item);
+                    next->doStep(step);
+                    stack->push(next);
                 }
             }
         }
