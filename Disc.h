@@ -11,6 +11,7 @@
 class Disc {
 public:
     Disc(int size);
+	Disc(const Disc& orig);
     virtual ~Disc();
     int getSize();
     Disc* getPrevious();

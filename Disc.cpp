@@ -4,12 +4,22 @@
  * 
  * Created on 5. шнjen 2011, 15:10
  */
-
+#include <locale.h>
 #include "Disc.h"
 
 Disc::Disc(int size) {
     this->size = size;
+	this->previous = NULL;
 }
+Disc::Disc(const Disc& orig) {
+	this->size = orig.size;
+	if(orig.previous != NULL)
+		this->previous = new Disc(*orig.previous);
+	else {
+		this->previous = NULL;
+	}
+}
+
 
 int Disc::getSize() {
     return this->size;

@@ -18,8 +18,12 @@ Pole::Pole() {
 
 Pole::Pole(const Pole& orig) {
     this->final=orig.final;
-    Disc* d = orig.last;
-    this->last = d;
+	if(orig.last != NULL)
+		this->last = new Disc(*orig.last);
+	else {
+		this->last = NULL;
+	}
+
     this->noDiscs = orig.noDiscs;
 }
 
