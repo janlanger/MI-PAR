@@ -25,6 +25,9 @@ public:
     int getStep();
     int getActivePole();
 	void setPreviousStep(Item* item);
+	Item* getPreviousStep();
+	void incrementRecursionLevel();
+	int getRecursionLevel();
     
 private:
     Item* previous;
@@ -37,6 +40,7 @@ private:
     int noOptions;
 //    int step;
 	int* executedStep;
+	int recursionLevel;
 };
 
 #endif	/* ITEM_H */

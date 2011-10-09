@@ -12,6 +12,7 @@
 #include "Disc.h"
 
 Item::Item(int noPoles, int noDiscs) {
+	this->recursionLevel = 0;
     this->noPoles = noPoles;
 	this->executedStep = NULL;
     this->noDiscs = noDiscs;
@@ -29,6 +30,7 @@ Item::Item(const Item& orig) {
     this->noPoles = orig.noPoles;
     this->noDiscs = orig.noDiscs;
 	this->previousStep = NULL;
+	this->recursionLevel = orig.recursionLevel;
     this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
@@ -88,6 +90,9 @@ void Item::generateOptions(){
 		for(int i = 0; i< this->noPoles; i++){
 			this->options[activePole][i] = false;
 			if(i==activePole ){
+				continue;
+			}
+			if(this->executedStep != NULL && activePole == this->executedStep[1] && i == executedStep[0]) {
 				continue;
 			}
 			if(this->poles[i].canAddDisc(disc)){
@@ -151,4 +156,15 @@ int Item::getActivePole(){
 
 void Item::setPreviousStep(Item* item) {
 	this->previousStep = item;
+}
+
+Item* Item::getPreviousStep(){
+    return this->previousStep;
+}
+
+int Item::getRecursionLevel() {
+	return recursionLevel;
+}
+void Item::incrementRecursionLevel() {
+	recursionLevel++;
 }
