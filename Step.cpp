@@ -4,7 +4,7 @@
  * 
  * Created on 5. шнjen 2011, 18:49
  */
-#include <cstdlib>
+#include <locale.h>
 #include "Step.h"
 #include "Disc.h"
 

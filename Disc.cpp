@@ -14,7 +14,7 @@ Disc::Disc(int size) {
 Disc::Disc(const Disc& orig) {
 	this->size = orig.size;
 	if(orig.previous != NULL)
-		this->previous = new Disc(*orig.previous);
+	this->previous = new Disc(*orig.previous);
 	else {
 		this->previous = NULL;
 	}

@@ -17,7 +17,6 @@ public:
     Item* getPrevious();
     void setPrevious(Item* item);
     Pole* getPole(int id);
- //   void setActivePole(int id);
     void generateOptions();
     bool hasOption();
     int* popOption();
@@ -33,12 +32,10 @@ private:
     Item* previous;
 	Item* previousStep;
     Pole* poles;
- //   int activePole;
     bool** options;
     int noPoles;
     int noDiscs;
     int noOptions;
-//    int step;
 	int* executedStep;
 	int recursionLevel;
 };
