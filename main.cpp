@@ -23,7 +23,6 @@ Item* generateInitState(int n, int s){
         Pole* pole = item->getPole(/*(time(NULL) % s))*/0);
         pole->addDisc(disc);
     }
-    item->setActivePole(0);
     item->generateOptions();
     
     return item;
@@ -49,7 +48,7 @@ int main(int argc, char** argv) {
     
     while(!stack->isEmpty())
     {
-        while(counter < limit){
+    //    while(counter < limit){
             counter++;
             Item* item = stack->head();
             if(item == NULL) {
@@ -72,24 +71,30 @@ int main(int argc, char** argv) {
                 
                 limit = counter - 1;
             }
-            if(!item->hasOption()){
-                stack->pop();
+            
+            
+                
+                
+                while(item->hasOption()){
+                    int* step = item->popOption();
+					next = new Item(*item);
+                    next->setPreviousStep(item);
+                    next->doStep(step);
+					next->generateOptions();
+                    stack->push(next);
+                }
+            
+			if(!item->hasOption()){
+                delete stack->pop();
                 counter--;
                 continue;
             }
-            for(int i = 0; i<s; i++){
-                
-                item->setActivePole(i);
-                item->generateOptions();
-                while(item->hasOption()){
-                    int step = item->popOption();
-					next = new Item(*item);
-                    next->setPrevious(item);
-                    next->doStep(step);
-                    stack->push(next);
-                }
-            }
-        }
+			if(counter > limit) {
+				delete stack->pop();
+				counter--;
+				continue;
+			}
+        //}
     }
     
     cout <<"Number of moves: " << (limit+1) << "\r\n";

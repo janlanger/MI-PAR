@@ -17,23 +17,26 @@ public:
     Item* getPrevious();
     void setPrevious(Item* item);
     Pole* getPole(int id);
-    void setActivePole(int id);
+ //   void setActivePole(int id);
     void generateOptions();
     bool hasOption();
-    int popOption();
-    void doStep(int step);
+    int* popOption();
+    void doStep(int* step);
     int getStep();
     int getActivePole();
+	void setPreviousStep(Item* item);
     
 private:
     Item* previous;
+	Item* previousStep;
     Pole* poles;
-    int activePole;
-    bool* options;
+ //   int activePole;
+    bool** options;
     int noPoles;
     int noDiscs;
     int noOptions;
-    int step;
+//    int step;
+	int* executedStep;
 };
 
 #endif	/* ITEM_H */
