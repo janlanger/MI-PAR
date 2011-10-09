@@ -147,8 +147,7 @@ int main(int argc, char** argv) {
 
 		solution = solution->getNext();
 	}
-        
-        cin.ignore(1);
+
 	return 0;
 }
 
