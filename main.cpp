@@ -19,9 +19,12 @@ using namespace std;
 
 Item* generateInitState(int n, int s){
 	Item* item = new Item(s, n);
+
+	/* initialize random seed: */
+	srand ( time(NULL) );
 	for( int i = 0 ; i<n; i++){
 		Disc* disc = new Disc(n-i);
-		Pole* pole = item->getPole(/*(time(NULL) % s)*/0);
+		Pole* pole = item->getPole((rand() % s));
 		pole->addDisc(disc);
 	}
 	item->generateOptions();
@@ -43,16 +46,42 @@ int main(int argc, char** argv) {
 	int s = 3;
 	int f = 2;
 
-	int limit = getUpperBound (n,s);
-	cout << "Upper bound is: " << limit << "\r\n";
+	
 
 	Step* solution = NULL;
 	Item* initial = generateInitState(n, s);
 	initial->getPole(f)->setFinal(true);
-	Item* next = NULL;
+
+	// vypis zakladni konfigurace
+	cout << "Initial configuration: \r\n";
+	
+	for(int i=0; i<s; i++) {
+		cout << "Pole " << i+1;
+		Disc* d = initial->getPole(i)->getLastDisc();
+		if(d == NULL) {
+			cout << " has no discs \r\n";
+			continue;
+		}
+		cout << " has discs: ";
+		while(d != NULL) {
+			cout << d->getSize() << " ";
+			d = d->getPrevious();
+		}
+		cout << "\r\n";
+	} 
+	// -- // vypis zakladni konfigurace
+
+	Item* next = NULL;	
+	Item* item = NULL;
+
+	int limit = getUpperBound (n,s);
+	cout << "\r\nUpper bound is: " << limit << "\r\n\r\n";
+
+
 	Stack* stack = new Stack();
 	stack->push(initial);
-	Item* item = NULL;
+
+
 	while(!stack->isEmpty())
 	{
 		item = stack->head();
