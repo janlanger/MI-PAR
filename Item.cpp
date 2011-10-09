@@ -115,10 +115,11 @@ int* Item::popOption(){
 				option[0] = startPole;
 				option[1] = endPole;
 				this->options[startPole][endPole] = false;
-				break;
+				goto finish;
 			}
 		}
 	}
+	finish:
 	return option;
 
     /*int id;
