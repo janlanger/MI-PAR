@@ -42,10 +42,23 @@ int getUpperBound(int n, int s) {
 */
 int main(int argc, char** argv) {
 
-	int n = 4;
-	int s = 3;
-	int f = 2;
+	int n, s, f;
 
+	cout << "Enter number of discs: ";
+	cin >> n;
+	cout << "Enter number of poles [>=" << max(3, n/4) << "]: ";
+	cin >> s;
+	if(s < max(3, n/4)) {
+		cout << "invalid pole number";
+		return -1;
+	}
+	cout << "Enter number of final pole [1-" << s << "]: ";
+	cin >> f;
+	if(f < 1 || f > s) {
+		cout << "invalid final pole number";
+		return -1;
+	}
+	f--;
 	
 
 	Step* solution = NULL;
@@ -133,7 +146,9 @@ int main(int argc, char** argv) {
 
 		solution = solution->getNext();
 	}
-	getchar();
+	//TODO - better
+	fflush(stdin);
+	cin.ignore(1);
 	return 0;
 }
 
