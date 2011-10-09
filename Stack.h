@@ -2,7 +2,7 @@
  * File:   Stack.h
  * Author: Honza
  *
- * Created on 5. øíjen 2011, 16:06
+ * Created on 5. Å™Ã­jen 2011, 16:06
  */
 
 #ifndef STACK_H

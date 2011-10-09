@@ -2,7 +2,7 @@
  * File:   Disc.cpp
  * Author: Honza
  * 
- * Created on 5. øíjen 2011, 15:10
+ * Created on 5. Å™Ã­jen 2011, 15:10
  */
 #include <locale.h>
 #include "Disc.h"

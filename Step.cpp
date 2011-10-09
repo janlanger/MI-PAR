@@ -2,7 +2,7 @@
  * File:   Step.cpp
  * Author: Honza
  * 
- * Created on 5. øíjen 2011, 18:49
+ * Created on 5. Å™Ã­jen 2011, 18:49
  */
 #include <locale.h>
 #include "Step.h"

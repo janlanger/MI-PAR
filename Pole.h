@@ -2,7 +2,7 @@
  * File:   Pole.h
  * Author: Honza
  *
- * Created on 5. øíjen 2011, 14:59
+ * Created on 5. Å™Ã­jen 2011, 14:59
  */
 
 #ifndef POLE_H

@@ -2,7 +2,7 @@
  * File:   Item.h
  * Author: Honza
  *
- * Created on 5. øíjen 2011, 14:57
+ * Created on 5. Å™Ã­jen 2011, 14:57
  */
 
 #ifndef ITEM_H
