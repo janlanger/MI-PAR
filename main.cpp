@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <time.h>
+#include <math.h>
 
 #include "Item.h"
 #include "Disc.h"
@@ -146,9 +147,8 @@ int main(int argc, char** argv) {
 
 		solution = solution->getNext();
 	}
-	//TODO - better
-	fflush(stdin);
-	cin.ignore(1);
+        
+        cin.ignore(1);
 	return 0;
 }
 
