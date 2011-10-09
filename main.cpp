@@ -32,8 +32,8 @@ Item* generateInitState(int n, int s){
 	return item;
 }
 
-int getUpperBound(int n, int s) {
-	return (int) (pow((double)2,(n/(s-2)))-1)*(2*s-5);
+int getUpperBound(double n, double s) {
+	return ceil((pow(2,(n/(s-2)))-1)*(2*s-5));
 }
 
 
