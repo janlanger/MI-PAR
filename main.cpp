@@ -5,6 +5,7 @@
 * Created on 5. říjen 2011, 14:55
 */
 
+
 #include <cstdlib>
 #include <iostream>
 #include <time.h>
@@ -25,7 +26,7 @@ Item* generateInitState(int n, int s){
 	srand ( time(NULL) );
 	for( int i = 0 ; i<n; i++){
 		Disc* disc = new Disc(n-i);
-		Pole* pole = item->getPole((rand() % s));
+		Pole* pole = item->getPole(/*(rand() % s)*/0);
 		pole->addDisc(disc);
 	}
 	item->generateOptions();
@@ -95,7 +96,7 @@ int main(int argc, char** argv) {
 	Stack* stack = new Stack();
 	stack->push(initial);
 
-
+	try{
 	while(!stack->isEmpty())
 	{
 		item = stack->head();
@@ -139,6 +140,9 @@ int main(int argc, char** argv) {
 			stack->push(next);
 		}
 	}
+	} catch (const char* str) {
+		cout << "Exception: " << str << endl;
+	}
 	cout << "\n\n-------------\n";
 	cout << "I have solution! \n";
 	cout <<"Number of moves: " << (limit+1) << "\r\n";
@@ -147,7 +151,8 @@ int main(int argc, char** argv) {
 
 		solution = solution->getNext();
 	}
-
+	cin.clear();
+	cin.ignore(2);
 	return 0;
 }
 
