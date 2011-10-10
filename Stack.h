@@ -20,6 +20,7 @@ public:
     bool isEmpty();
 private:
     Item* top;
+	int size;
 };
 
 #endif	/* STACK_H */
