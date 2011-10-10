@@ -19,6 +19,8 @@ Step::Step(const Step& orig) {
 }
 
 Step::~Step() {
+	if(this->next != NULL)
+		delete this->next;
 }
 
 int Step::getDisc() {

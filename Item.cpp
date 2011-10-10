@@ -6,11 +6,13 @@
 */
 
 #include <locale.h>
+#include <iostream>
 
 #include "Item.h"
 #include "Pole.h"
 #include "Disc.h"
 
+using namespace std;
 Item::Item(int noPoles, int noDiscs) {
 	this->recursionLevel = 0;
 	this->noPoles = noPoles;
@@ -37,8 +39,7 @@ Item::Item(const Item& orig) {
 	this->executedStep = NULL;
 
 	for(int i = 0; i<this->noPoles; i++){
-		Pole pole = orig.poles[i];
-		this->poles[i] = pole;
+		this->poles[i] = *(new Pole(orig.poles[i]));
 	}
 
 
@@ -46,6 +47,8 @@ Item::Item(const Item& orig) {
 
 
 Item::~Item() {
+	delete[] this->options;
+	delete[] this->poles;
 }
 
 Item* Item::getPrevious(){
@@ -125,6 +128,7 @@ finish:
 
 void Item::doStep(int* step){
 	this->executedStep = step;
+//	cout << step[0] << " " << step[1] << endl;
 	Disc* disc = this->poles[step[0]].popLastDisc();
 	this->poles[step[1]].addDisc(disc);
 }

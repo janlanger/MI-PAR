@@ -28,6 +28,8 @@ Pole::Pole(const Pole& orig) {
 }
 
 Pole::~Pole() {
+	if(this->last != NULL) 
+		delete this->last;
 }
 
 bool Pole::canAddDisc(Disc* disk) {

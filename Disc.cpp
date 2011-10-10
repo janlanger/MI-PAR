@@ -26,6 +26,9 @@ int Disc::getSize() {
 }
 
 Disc::~Disc() {
+	if(this->previous != NULL) {
+		delete this->previous;
+	}
 }
 
 Disc* Disc::getPrevious() {
