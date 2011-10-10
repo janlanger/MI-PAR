@@ -146,13 +146,17 @@ int main(int argc, char** argv) {
 	cout << "\n\n-------------\n";
 	cout << "I have solution! \n";
 	cout <<"Number of moves: " << (limit+1) << "\r\n";
+	Step* tmp = solution; //stores top of solution stack for destruct call;
 	while(solution != NULL){
 		cout <<"Move disc " << solution->getDisc() << " from " << solution->getFrom() << " to " << solution->getTo()<< "\r\n";
-
 		solution = solution->getNext();
-	}
+	} 
+	delete tmp;
+	delete stack;
+
 	cin.clear();
 	cin.ignore(2);
+//	_CrtDumpMemoryLeaks();
 	return 0;
 }
 

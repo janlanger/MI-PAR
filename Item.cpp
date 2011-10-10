@@ -47,8 +47,13 @@ Item::Item(const Item& orig) {
 
 
 Item::~Item() {
+	for(int i = 0; i<this->noPoles; i++) {
+		delete[] this->options[i];
+	}
 	delete[] this->options;
 	delete[] this->poles;
+
+	delete[] this->executedStep;
 }
 
 Item* Item::getPrevious(){

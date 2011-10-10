@@ -18,13 +18,16 @@ Stack::Stack(const Stack& orig) {
 }
 
 Stack::~Stack() {
+	if(this->top != NULL) {
+		delete this->top;
+	}
 }
 void Stack::push(Item* item){
 	item->setPrevious(this->top);
 	
 	this->top = item;
 	this->size++;
-	std::cout << this->size << "\n";
+	//std::cout << this->size << "\n";
 }
 
 Item* Stack::pop(){
