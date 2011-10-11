@@ -16,7 +16,7 @@ Pole::Pole() {
 	this->final = false;
 }
 
-Pole::Pole(const Pole& orig) {
+void Pole::copy(const Pole& orig) {
 	this->final=orig.final;
 	if(orig.last != NULL)
 		this->last = new Disc(*orig.last);

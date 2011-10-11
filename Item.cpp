@@ -39,7 +39,7 @@ Item::Item(const Item& orig) {
 	this->executedStep = NULL;
 
 	for(int i = 0; i<this->noPoles; i++){
-		this->poles[i] = *(new Pole(orig.poles[i]));
+		this->poles[i].copy(orig.poles[i]);
 	}
 
 
@@ -52,7 +52,6 @@ Item::~Item() {
 	}
 	delete[] this->options;
 	delete[] this->poles;
-
 	delete[] this->executedStep;
 }
 

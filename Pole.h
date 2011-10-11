@@ -12,7 +12,7 @@
 class Pole {
 public:
     Pole();
-    Pole(const Pole& orig);
+    void copy(const Pole& orig);
     virtual ~Pole();
     bool canAddDisc(Disc* disk);
     void addDisc(Disc* disk);
