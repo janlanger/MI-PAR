@@ -10,7 +10,7 @@
 
 #include "Item.h"
 
-Item::Item ( const unsigned char noPoles, const unsigned char noDiscs, const unsigned char finalPole )
+Item::Item ( int noPoles, int noDiscs, int finalPole )
 {
     this->recursionLevel = 0;
     this->noOptions = 0;
@@ -18,21 +18,21 @@ Item::Item ( const unsigned char noPoles, const unsigned char noDiscs, const uns
     this->executedStep = NULL;
     this->noDiscs = noDiscs;
     this->finalPole = finalPole;
-    this->poles = new char*[this->noPoles];
+    this->poles = new int*[this->noPoles];
 
     this->options = new bool*[noPoles];
-    this->polesLastDiscIndex = new char[noPoles];
+    this->polesLastDiscIndex = new int[noPoles];
 
-    for ( unsigned char i = 0; i < noPoles; i++ )
+    for ( short i = 0; i < noPoles; i++ )
     {
         this->options[i] = new bool[noPoles];
-        this->poles[i] = new char[noDiscs];
+        this->poles[i] = new int[noDiscs];
         this->polesLastDiscIndex[i] = -1;
-        for ( unsigned char j = 0; j < noDiscs; j++ )
+        for ( short j = 0; j < noDiscs; j++ )
         {
                 this->poles[i][j] = -1;
         }
-        for (unsigned char j = 0; j < noPoles; j++)
+        for (short j = 0; j < noPoles; j++)
         {
             this->options[i][j] = false;
         }
@@ -50,19 +50,19 @@ Item::Item ( const Item& orig )
     this->previousStep = NULL;
     this->recursionLevel = orig.recursionLevel;
     this->options = new bool*[orig.noPoles];
-    this->poles = new char*[this->noPoles];
-    this->polesLastDiscIndex = new char[noPoles];
+    this->poles = new int*[this->noPoles];
+    this->polesLastDiscIndex = new int[noPoles];
     
-    for ( unsigned char i = 0; i < orig.noPoles; i++ )
+    for ( short i = 0; i < orig.noPoles; i++ )
     {
         this->options[i] = new bool[orig.noPoles];
-        this->poles[i] = new char[orig.noDiscs];
+        this->poles[i] = new int[orig.noDiscs];
         this->polesLastDiscIndex[i] = orig.polesLastDiscIndex[i];
-        for ( unsigned char j = 0; j < orig.noDiscs; j++ )
+        for ( short j = 0; j < orig.noDiscs; j++ )
         {
                 this->poles[i][j] = orig.poles[i][j];
         }
-        for (unsigned char j = 0; j < orig.noPoles; j++)
+        for (short j = 0; j < orig.noPoles; j++)
         {
             this->options[i][j] = false;
         }
@@ -72,13 +72,13 @@ Item::Item ( const Item& orig )
 
 Item::~Item()
 {
-    for ( unsigned char i = 0; i<this->noPoles; i++ )
+    for ( short i = 0; i<this->noPoles; i++ )
     {
         delete[] this->options[i];
     }
     delete[] this->options;
 
-    for ( unsigned char i =0; i < this->noDiscs; i++ )
+    for ( short i =0; i < this->noDiscs; i++ )
     {
 
         delete[] this->poles[i];
@@ -97,7 +97,7 @@ void Item::setPrevious ( Item* item )
     this->previous = item;
 }
 
-char* Item::getPole ( unsigned char id ) const
+int* Item::getPole ( int id ) const
 {
     return poles[id];
 }
@@ -107,7 +107,7 @@ void Item::generateOptions()
     this->noOptions = 0;
     for ( int activePole = 0; activePole < this->noPoles; activePole++ )
     {
-        char lastDiscIndex = this->polesLastDiscIndex[activePole];
+        int lastDiscIndex = this->polesLastDiscIndex[activePole];
 
         if ( lastDiscIndex == -1 )
         {
@@ -120,10 +120,10 @@ void Item::generateOptions()
 
         if ( this->finalPole == activePole )
         {
-            if ( ( (char)2 + this->noDiscs - this->polesLastDiscIndex[activePole] ) == this->poles[activePole][(int)lastDiscIndex] )
+            if ( ( 2 + this->noDiscs - this->polesLastDiscIndex[activePole] ) == this->poles[activePole][lastDiscIndex] )
             {
                 //makes impossible to move discs in final position
-                for ( unsigned char i = 0; i < this->noPoles; i++ )
+                for ( short i = 0; i < this->noPoles; i++ )
                 {
                     this->options[activePole][i] = false;
                 }
@@ -181,11 +181,11 @@ finish:
     return option;
 }
 
-void Item::doStep ( char* step )
+void Item::doStep ( int* step )
 {
     this->executedStep = step;
-    this->poles[(int)step[1]][(int)++this->polesLastDiscIndex[(int)step[1]]] = this->poles[(int)step[0]][(int)this->polesLastDiscIndex[(int)step[0]]];
-    this->poles[(int)step[0]][(int)this->polesLastDiscIndex[(int)step[0]]--] = -1;
+    this->poles[step[1]][++this->polesLastDiscIndex[step[1]]] = this->poles[step[0]][this->polesLastDiscIndex[step[0]]];
+    this->poles[step[0]][this->polesLastDiscIndex[step[0]]--] = -1;
 }
 
 int Item::getStep()
@@ -217,24 +217,54 @@ void Item::incrementRecursionLevel()
     recursionLevel++;
 }
 
-void Item::addDisc ( unsigned char pole, unsigned char disc )
+void Item::addDisc ( int pole, int disc )
 {
     this->poles[pole][(int)++this->polesLastDiscIndex[pole]] = disc;
 }
 
-unsigned char Item::getNoPoles() const
+int Item::getNoPoles() const
 {
     return this->noPoles;
 }
 
-unsigned char Item::getNoDiscs() const
+int Item::getNoDiscs() const
 {
     return noDiscs;
 }
 
-unsigned char Item::getPoleNoDiscs ( char pole )
+int Item::getPoleNoDiscs ( char pole )
 {
     return polesLastDiscIndex[(int)pole] + 1;
 }
 
-
+ostream& Item::print(ostream& stream)
+{
+    for ( unsigned char i = 0; i < this->noPoles; i++ )
+    {
+        stream << "Pole " << i+1;
+        int* discs = this->getPole(i);
+        if ( discs[0] == -1 )
+        {
+            stream << " has no discs " << endl;
+        }
+        else
+        {
+            stream << " has discs: ";
+            for ( unsigned char j = 0; j < this->noDiscs; j++ )
+            {
+                if ( discs[j] > 0 )
+                {
+                    stream << discs[j] << " ";
+                }
+                else
+                {
+                    break;
+                }
+            }
+            stream << endl;
+        }
+        
+    }
+    stream << endl;
+    return stream;
+}

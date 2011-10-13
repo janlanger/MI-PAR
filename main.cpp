@@ -17,13 +17,13 @@
 
 using namespace std;
 
-Item* generateInitState ( unsigned char n, unsigned char s, unsigned char f )
+Item* generateInitState ( int n, int s, int f )
 {
     Item* item = new Item ( s, n, f );
 
     /* initialize random seed: */
     srand ( time ( NULL ) );
-    for ( unsigned char i = 0 ; i < n; i++ )
+    for ( int i = 0 ; i < n; i++ )
     {
         item->addDisc(/*(rand() % s)*/0, n-i);
     }
@@ -32,42 +32,14 @@ Item* generateInitState ( unsigned char n, unsigned char s, unsigned char f )
     return item;
 }
 
-int getUpperBound ( unsigned char n, unsigned char s )
+int getUpperBound ( int n, int s )
 {
-    return ceil ( ( pow ( 2, ( n/ ( s-2 ) ) )-1 ) * ( 2*s-5 ) );
+    return ceil ( ( pow ( 2, (n/ (s-2 ) ) )-1 ) * ( 2*s-5 ) );
 }
 
-ostream& operator << ( ostream& o, const Item& item )
-{
-    for ( unsigned char i = 0; i < item.getNoPoles(); i++ )
-    {
-        o << "Pole " << i+1;
-        char* discs = item.getPole(i);
-        if ( discs[0] == -1 )
-        {
-            o << " has no discs " << endl;
-        }
-        else
-        {
-            o << " has discs: ";
-            for ( unsigned char j = 0; j < item.getNoDiscs(); j++ )
-            {
-                if ( discs[j] > 0 )
-                {
-                    o << discs[j] << " ";
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
 
-        o << endl;
-    }
 
-    return o;
-}
+
 
 
 /*
@@ -76,7 +48,7 @@ ostream& operator << ( ostream& o, const Item& item )
 int main ( int argc, char** argv )
 {
     clock_t runtime = clock();
-    unsigned char n, s, f;
+    int n, s, f;
 
     cout << "Enter number of discs: ";
     cin >> n;
@@ -98,12 +70,12 @@ int main ( int argc, char** argv )
 
 
     Step* solution = NULL;
-    Item* initial = generateInitState ( n, s , f);
+    Item* initial = generateInitState ( (unsigned char)n, (unsigned char)s , (unsigned char)f);
 
     // vypis zakladni konfigurace
     cout << "Initial configuration: \r\n";
 
-    cout << initial << endl;
+    initial->print(cout);
     // -- // vypis zakladni konfigurace
 
     Item* next = NULL;
@@ -113,7 +85,6 @@ int main ( int argc, char** argv )
     cout << endl<< "Upper bound is: " << limit << endl << endl;
 
 
-    exit(0);
     Stack* stack = new Stack();
     stack->push ( initial );
 
@@ -136,7 +107,7 @@ int main ( int argc, char** argv )
                 cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
                 while ( NULL != item->getPreviousStep() )
                 {
-                    //disc = item->getPole ( item->getStep() )->getLastDisc()->getSize();
+                    disc = item->getPole(item->getStep())[item->getPoleNoDiscs(item->getStep())-1];
                     from = item->getActivePole();
                     to = item->getStep();
                     solution = new Step ( disc, from, to, solution );
@@ -163,7 +134,7 @@ int main ( int argc, char** argv )
                 next = new Item ( *item );
                 next->incrementRecursionLevel();
                 next->setPreviousStep ( item );
-                //next->doStep ( step );
+                next->doStep ( step );
                 next->generateOptions();
                 stack->push ( next );
             }
