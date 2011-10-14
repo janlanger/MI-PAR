@@ -141,7 +141,7 @@ void Item::generateOptions()
             {
                 continue;
             }
-            if ( this->poles[i][(int)this->polesLastDiscIndex[i]] > this->poles[activePole][(int)lastDiscIndex] )
+            if (this->polesLastDiscIndex[i] == -1 || this->poles[i][(int)this->polesLastDiscIndex[i]] > this->poles[activePole][(int)lastDiscIndex] )
             {
                 this->options[activePole][i] = true;
                 this->noOptions++;
