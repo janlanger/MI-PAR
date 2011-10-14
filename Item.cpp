@@ -75,14 +75,10 @@ Item::~Item()
     for ( short i = 0; i<this->noPoles; i++ )
     {
         delete[] this->options[i];
-    }
-    delete[] this->options;
-
-    for ( short i =0; i < this->noDiscs; i++ )
-    {
-
         delete[] this->poles[i];
     }
+    
+    delete[] this->options;
     delete[] this->poles;
     delete[] this->polesLastDiscIndex;
 }

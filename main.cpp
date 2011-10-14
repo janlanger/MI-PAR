@@ -47,7 +47,7 @@ int getUpperBound ( double n, double s )
 */
 int main ( int argc, char** argv )
 {
-    clock_t runtime = clock();
+
     int n, s, f;
 
     cout << "Enter number of discs: ";
@@ -68,7 +68,7 @@ int main ( int argc, char** argv )
     }
     f--;
 
-
+    clock_t runtime = clock();
     Step* solution = NULL;
     Item* initial = generateInitState ( (unsigned char)n, (unsigned char)s , (unsigned char)f);
 
@@ -157,9 +157,8 @@ int main ( int argc, char** argv )
     delete tmp;
     delete stack;
 
-//  cin.clear();
-//  cin.ignore(2);
-//  _CrtDumpMemoryLeaks();
+  cin.clear();
+  cin.ignore(2);
     return 0;
 }
 
