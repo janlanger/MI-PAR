@@ -81,6 +81,7 @@ Item::~Item()
     delete[] this->options;
     delete[] this->poles;
     delete[] this->polesLastDiscIndex;
+    delete[] this->executedStep;
 }
 
 Item* Item::getPrevious()
