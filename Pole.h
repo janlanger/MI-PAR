@@ -7,24 +7,24 @@
 
 #ifndef POLE_H
 #define	POLE_H
-#include "Disc.h"
 
 class Pole {
 public:
     Pole();
-    void copy(const Pole& orig);
+    void init(short maxNoDiscs);
     virtual ~Pole();
-    bool canAddDisc(Disc* disk);
-    void addDisc(Disc* disk);
-    Disc* getLastDisc();
+    bool canAddDisc(short diskSize);
+    void addDisc(short diskSize);
+    short getLastDiscSize();
     void setFinal(bool isFinal);
-    Disc* popLastDisc();
+    short popLastDisc();
     bool isFinal();
     int getNoDiscs();
+    short* getDiscs();
 private:
-    Disc* last;
+    short* discs;
     bool final;
-    int noDiscs;
+    short discsOnPole;
 
 };
 

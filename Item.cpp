@@ -7,18 +7,23 @@
 
 #include <locale.h>
 #include <iostream>
-
+#include <vector>
 #include "Item.h"
 #include "Pole.h"
-#include "Disc.h"
 
 using namespace std;
+
+    void combinations_recursive(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
+    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
 Item::Item(int noPoles, int noDiscs) {
+   // if(this->allPoles == NULL) {
+        this->generateAllPoles(noDiscs);
+  //  }
 	this->recursionLevel = 0;
 	this->noPoles = noPoles;
 	this->executedStep = NULL;
 	this->noDiscs = noDiscs;
-	this->poles = new Pole[noPoles];
+//	this->poles = new Pole*[noPoles];
 	this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
@@ -35,12 +40,12 @@ Item::Item(const Item& orig) {
 	this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
-	this->poles = new Pole[this->noPoles];
+	//this->poles = new Pole[this->noPoles];
 	this->executedStep = NULL;
 
-	for(int i = 0; i<this->noPoles; i++){
+/*	for(int i = 0; i<this->noPoles; i++){
 		this->poles[i].copy(orig.poles[i]);
-	}
+	}*/
 
 
 }
@@ -68,7 +73,7 @@ Pole* Item::getPole(int id){
 }
 
 void Item::generateOptions(){
-	this->noOptions = 0;
+/*	this->noOptions = 0;
 	for(int activePole = 0; activePole< noPoles; activePole++) {
 		Disc* disc = this->poles[activePole].getLastDisc();
 		if(disc == NULL) {
@@ -102,7 +107,7 @@ void Item::generateOptions(){
 				this->noOptions++;
 			}
 		}
-	}    
+	} */   
 }
 
 bool Item::hasOption(){
@@ -131,10 +136,10 @@ finish:
 }
 
 void Item::doStep(int* step){
-	this->executedStep = step;
+/*	this->executedStep = step;
 //	cout << step[0] << " " << step[1] << endl;
 	Disc* disc = this->poles[step[0]].popLastDisc();
-	this->poles[step[1]].addDisc(disc);
+	this->poles[step[1]].addDisc(disc);*/
 }
 
 int Item::getStep(){
@@ -159,3 +164,66 @@ int Item::getRecursionLevel() {
 void Item::incrementRecursionLevel() {
 	recursionLevel++;
 }
+
+void Item::generateAllPoles(int noDiscs) {
+    int arraySize = noCombinations(noDiscs, noDiscs);
+    this->allPoles = new Pole[arraySize];
+    short* items = new short[noDiscs];
+    for(int i=0; i<noDiscs; i++) {
+        items[i] = i+1;
+    }
+    int pole = 0;
+    for(int size = noDiscs; size > 0; size--) {
+        vector<short> ix(size);
+        vector<vector<short>> combinations(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size))));
+        int x = 0;
+        combinations_recursive(items, noDiscs, size,ix,0,0, combinations, x);
+
+        for(int i = 0; combinations.size() > i; i++) {
+            this->allPoles[pole].init(noDiscs);
+            for(int j = combinations[i].size()-1; j >= 0; j--) {
+                this->allPoles[pole].addDisc(combinations[i][j]);
+            }
+            pole++;
+        }
+    }
+}
+
+int Item::noCombinations(int n, int k) {
+    if(k > 1) {
+        return factorial(n)/(factorial(k)*(factorial(n-k))) + noCombinations(n,k-1);
+    } else {
+        return n;
+    }
+}
+int Item::factorial (int a)
+{
+  if (a > 1)
+   return (a * factorial (a-1));
+  else
+   return (1);
+}
+void combinations_recursive(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
+    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize)
+{
+    // Have we selected the requested number of elements?
+    if (depth >= combinationLength) {
+        combinations[combinationsSize++] = returned;
+        return;
+    }
+
+    // Are there enough remaining elements to be selected?
+    // This test isn't required for the function to be
+    // correct, but it saves futile calls.
+    if ((itemsSize - margin) < (combinationLength - depth))
+        return;
+
+    // Try to select new elements to the right of the last
+    // selected one.
+    for (unsigned long ii = margin; ii < itemsSize; ++ii) {
+        returned[depth] = ii+1;
+        combinations_recursive(items, itemsSize, combinationLength, returned, depth + 1, ii + 1, combinations, combinationsSize);
+    }
+    return;
+}
+

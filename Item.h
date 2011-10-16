@@ -11,6 +11,7 @@
 
 class Item {
 public:
+    Pole* allPoles;
     Item(int noPoles, int noDiscs);
     Item(const Item& orig);
     virtual ~Item();
@@ -29,6 +30,9 @@ public:
 	int getRecursionLevel();
     
 private:
+    void generateAllPoles(int noDiscs);
+    int noCombinations(int n, int k);
+    int factorial(int a);
     Item* previous;
 	Item* previousStep;
     Pole* poles;

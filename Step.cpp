@@ -6,7 +6,6 @@
  */
 #include <locale.h>
 #include "Step.h"
-#include "Disc.h"
 
 Step::Step(int disc, int from, int to, Step* next) {
     this->disc = disc;

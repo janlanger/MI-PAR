@@ -8,62 +8,59 @@
 #include <locale.h>
 
 #include "Pole.h"
-#include "Disc.h"
 
 Pole::Pole() {
-	this->last = NULL;
-	this->noDiscs = 0;
+    
+    this->discsOnPole = 0;
 	this->final = false;
 }
-
-void Pole::copy(const Pole& orig) {
-	this->final=orig.final;
-	if(orig.last != NULL)
-		this->last = new Disc(*orig.last);
-	else {
-		this->last = NULL;
-	}
-
-	this->noDiscs = orig.noDiscs;
+void Pole::init(short maxNoDiscs) {
+    this->discs = new short[maxNoDiscs];
+    for(int i=0; i<maxNoDiscs; i++) {
+        this->discs[i] = -1;
+    }
 }
+
+
 
 Pole::~Pole() {
-	if(this->last != NULL) 
-		delete this->last;
+	delete[] this->discs;
 }
 
-bool Pole::canAddDisc(Disc* disk) {
-	return (this->last == NULL || disk == NULL || this->last->getSize() > disk->getSize());
+bool Pole::canAddDisc(short diskSize) {
+    return (this->discsOnPole == 0 || this->discs[this->discsOnPole-1] > diskSize);
 }
 
-void Pole::addDisc(Disc* disc) {
-	if (!this->canAddDisc(disc))
+void Pole::addDisc(short diskSize) {
+    if (!this->canAddDisc(diskSize))
 		throw "Is not possible to add bigger to the smaller disc.";
-	disc->setPrevious(this->last);
-	this->last = disc;
-	this->noDiscs++;
+    this->discs[this->discsOnPole++] = diskSize;
 }
 
-Disc* Pole::getLastDisc(){
-	return this->last;
+short Pole::getLastDiscSize(){
+    if(this->discsOnPole == 0) {
+        return 0;
+    } else {
+        return this->discs[this->discsOnPole-1];
+    }
 }
 
 void Pole::setFinal(bool final){
 	this->final = final;
 }
 
-Disc* Pole::popLastDisc(){
-	Disc* disc;
-	disc = this->last;
-	this->last = disc->getPrevious();
-	this->noDiscs--;
-	return disc;
+short Pole::popLastDisc(){
+    return this->discs[this->discsOnPole-- -1];
 }
 
 int Pole::getNoDiscs(){
-	return this->noDiscs;
+    return this->discsOnPole;
 }
 
 bool Pole::isFinal(){
 	return this->final;
+}
+
+short* Pole::getDiscs() {
+    return this->discs;
 }

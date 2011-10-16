@@ -12,7 +12,6 @@
 #include <math.h>
 
 #include "Item.h"
-#include "Disc.h"
 #include "Pole.h"
 #include "Stack.h"
 #include "Step.h"
@@ -25,9 +24,8 @@ Item* generateInitState(int n, int s){
 	/* initialize random seed: */
 	srand ( time(NULL) );
 	for( int i = 0 ; i<n; i++){
-		Disc* disc = new Disc(n-i);
 		Pole* pole = item->getPole(/*(rand() % s)*/0);
-		pole->addDisc(disc);
+		pole->addDisc(n-i);
 	}
 	item->generateOptions();
 
@@ -72,15 +70,15 @@ int main(int argc, char** argv) {
 	
 	for(int i=0; i<s; i++) {
 		cout << "Pole " << i+1;
-		Disc* d = initial->getPole(i)->getLastDisc();
-		if(d == NULL) {
+        short* d = initial->getPole(i)->getDiscs();
+        short noD = initial->getPole(i)->getNoDiscs();
+		if(noD == 0) {
 			cout << " has no discs \r\n";
 			continue;
 		}
 		cout << " has discs: ";
-		while(d != NULL) {
-			cout << d->getSize() << " ";
-			d = d->getPrevious();
+		for(int i = 0; i<noD; i++) {
+			cout << d[i] << " ";
 		}
 		cout << "\r\n";
 	} 
@@ -111,7 +109,7 @@ int main(int argc, char** argv) {
 			limit = item->getRecursionLevel() - 1;
 			cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
 			while(NULL != item->getPreviousStep()){
-				disc = item->getPole(item->getStep())->getLastDisc()->getSize();
+				disc = item->getPole(item->getStep())->getLastDiscSize();
 				from = item->getActivePole();
 				to = item->getStep();
 				solution = new Step(disc, from, to, solution);
