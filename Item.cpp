@@ -15,8 +15,6 @@ using namespace std;
 
 Pole* Item::allPoles = NULL;
 int Item::allPolesSize = 0;
-void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
-    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
 
 Item::Item(int noPoles, int noDiscs) {
     if(this->allPoles == NULL) {
@@ -149,8 +147,8 @@ void Item::doStep(int* step){
     int startScore = this->poles[step[0]]->getScore();
     int endScore = this->poles[step[1]]->getScore();
 
-	this->poles[step[1]] = this->getPoleWithScore(endScore + pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
-    this->poles[step[0]] = this->getPoleWithScore(startScore - pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
+	this->poles[step[1]] = this->getPoleWithScore(endScore + (int) pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
+    this->poles[step[0]] = this->getPoleWithScore(startScore - (int) pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
     
 
 }
@@ -193,9 +191,9 @@ void Item::generateAllPoles(int noDiscs) {
         int x = 0;
         getCombinations(items, noDiscs, size,ix,0,0, combinations, x);
 
-        for(int i = 0; combinations.size() > i; i++) {
+        for(unsigned int i = 0; combinations.size() > i; i++) {
             this->allPoles[pole].init(noDiscs);
-            for(int j = combinations[i].size()-1; j >= 0; j--) {
+            for(unsigned int j = combinations[i].size()-1; j >= 0; j--) {
                 this->allPoles[pole].addDisc(combinations[i][j]);
             }
             pole++;
@@ -218,8 +216,8 @@ int Item::factorial (int a)
   else
    return (1);
 }
-void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
-    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize)
+void Item::getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
+    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int combinationsSize)
 {
     // Have we selected the requested number of elements?
     if (depth >= combinationLength) {
@@ -235,7 +233,7 @@ void getCombinations(short* items, short itemsSize, unsigned short combinationLe
 
     // Try to select new elements to the right of the last
     // selected one.
-    for (unsigned long ii = margin; ii < itemsSize; ++ii) {
+    for (unsigned short ii = margin; ii < itemsSize; ++ii) {
         returned[depth] = ii+1;
         getCombinations(items, itemsSize, combinationLength, returned, depth + 1, ii + 1, combinations, combinationsSize);
     }
@@ -247,7 +245,7 @@ void Item::setFinalPole(int poleNr) {
 
 void Item::addDiscOnPole(int pole, int discSize) {
     unsigned int score = this->poles[pole]->getScore();
-    unsigned int newScore = score + pow((float)2, discSize-1);
+    unsigned int newScore = score + (unsigned int) pow((float)2, discSize-1);
     this->poles[pole] = this->getPoleWithScore(newScore);
 
 }

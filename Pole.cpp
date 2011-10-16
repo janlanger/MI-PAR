@@ -63,7 +63,7 @@ short* Pole::getDiscs() {
 void Pole::recountScore() {
     this->score = 0;
     for(int i=0; i<this->discsOnPole; i++) {
-        this->score += ceil(pow((float)2, this->discs[i] -1));
+        this->score += (int) ceil(pow((float)2, this->discs[i] -1));
     }
 }
 

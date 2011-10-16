@@ -22,7 +22,7 @@ Item* generateInitState(int n, int s, int f){
 	Item* item = new Item(s, n);
     item->setFinalPole(f);
 	/* initialize random seed: */
-	srand ( time(NULL) );
+	srand ((unsigned int) time(NULL) );
 	for( int i = 0 ; i<n; i++){
 		item->addDiscOnPole(/*(rand() % s)*/0, n-i);
 	}
@@ -32,7 +32,7 @@ Item* generateInitState(int n, int s, int f){
 }
 
 int getUpperBound(double n, double s) {
-	return ceil((pow(2,(n/(s-2)))-1)*(2*s-5));
+	return (int) ceil((pow(2,(n/(s-2)))-1)*(2*s-5));
 }
 
 
