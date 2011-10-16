@@ -7,11 +7,12 @@
 
 #ifndef ITEM_H
 #define	ITEM_H
+#include <locale.h>
 #include "Pole.h"
 
 class Item {
 public:
-    Pole* allPoles;
+
     Item(int noPoles, int noDiscs);
     Item(const Item& orig);
     virtual ~Item();
@@ -30,6 +31,7 @@ public:
 	int getRecursionLevel();
     
 private:
+    static Pole* allPoles;
     void generateAllPoles(int noDiscs);
     int noCombinations(int n, int k);
     int factorial(int a);

@@ -13,6 +13,7 @@
 
 using namespace std;
 
+Pole* Item::allPoles = NULL;
     void combinations_recursive(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
     unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
 Item::Item(int noPoles, int noDiscs) {
