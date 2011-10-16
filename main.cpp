@@ -43,7 +43,7 @@ int getUpperBound(double n, double s) {
 * 
 */
 int main(int argc, char** argv) {
-	clock_t runtime = clock();
+	
 	int n, s, f;
 
 	cout << "Enter number of discs: ";
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	f--;
-	
+	clock_t runtime = clock();
 
 	Step* solution = NULL;
 	Item* initial = generateInitState(n, s);
