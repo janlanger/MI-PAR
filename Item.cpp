@@ -62,8 +62,11 @@ Item::~Item() {
 		delete[] this->options[i];
 	}
 	delete[] this->options;
-//	delete this->poles;
+
 	delete[] this->executedStep;
+    if(this->previous == NULL) {
+        delete[] this->allPoles;
+    }
 }
 
 Item* Item::getPrevious(){
@@ -178,7 +181,6 @@ void Item::incrementRecursionLevel() {
 void Item::generateAllPoles(int noDiscs) {
     this->allPolesSize = noCombinations(noDiscs, noDiscs)+1;
     this->allPoles = new Pole[this->allPolesSize];
-    this->allPoles[0] = *new Pole();
     this->allPoles[0].init(noDiscs);
     short* items = new short[noDiscs];
     for(int i=0; i<noDiscs; i++) {
@@ -199,6 +201,7 @@ void Item::generateAllPoles(int noDiscs) {
             pole++;
         }
     }
+    delete[] items;
 }
 
 int Item::noCombinations(int n, int k) {
