@@ -43,7 +43,7 @@ private:
     Pole* getPoleWithScore(unsigned int score);
     int noCombinations(int n, int k);
     int factorial(int a);
-    void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int combinationsSize);
+    void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
     Item* previous;
 	Item* previousStep;
     void* pp;
