@@ -8,6 +8,7 @@
 #ifndef ITEM_H
 #define	ITEM_H
 #include <locale.h>
+#include <vector>
 #include "Pole.h"
 
 class Item {
@@ -29,21 +30,28 @@ public:
 	Item* getPreviousStep();
 	void incrementRecursionLevel();
 	int getRecursionLevel();
+    void setFinalPole(int poleNr);
+    void addDiscOnPole(int pole, int discSize);
     
 private:
     static Pole* allPoles;
+    static int allPolesSize;
+    short finalPole;
     void generateAllPoles(int noDiscs);
+    Pole* getPoleWithScore(unsigned int score);
     int noCombinations(int n, int k);
     int factorial(int a);
     Item* previous;
 	Item* previousStep;
-    Pole* poles;
+    void* pp;
+    std::vector<Pole*> poles;
     bool** options;
     int noPoles;
     int noDiscs;
     int noOptions;
 	int* executedStep;
 	int recursionLevel;
+    
 };
 
 #endif	/* ITEM_H */

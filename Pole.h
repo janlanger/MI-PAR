@@ -16,16 +16,15 @@ public:
     bool canAddDisc(short diskSize);
     void addDisc(short diskSize);
     short getLastDiscSize();
-    void setFinal(bool isFinal);
     short popLastDisc();
-    bool isFinal();
     int getNoDiscs();
     short* getDiscs();
+    unsigned int getScore();
 private:
+    void recountScore();
     short* discs;
-    bool final;
     short discsOnPole;
-
+    unsigned int score;
 };
 
 #endif	/* POLE_H */

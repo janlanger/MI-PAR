@@ -14,26 +14,31 @@
 using namespace std;
 
 Pole* Item::allPoles = NULL;
-    void combinations_recursive(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
+int Item::allPolesSize = 0;
+void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
     unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
+
 Item::Item(int noPoles, int noDiscs) {
-   // if(this->allPoles == NULL) {
+    if(this->allPoles == NULL) {
         this->generateAllPoles(noDiscs);
-  //  }
+    }
+    this->finalPole = NULL;
 	this->recursionLevel = 0;
 	this->noPoles = noPoles;
 	this->executedStep = NULL;
 	this->noDiscs = noDiscs;
-//	this->poles = new Pole*[noPoles];
-	this->options = new bool *[noPoles];
-	for(int i=0; i<noPoles; i++) 
+    this->poles = vector<Pole*>(noDiscs, &this->allPoles[0]);
+    this->options = new bool *[noPoles];
+	for(int i=0; i<noPoles; i++) {
 		this->options[i] = new bool[noPoles];
+    }
 	this->previous = NULL;
 	this->previousStep = NULL;
 }
 
 Item::Item(const Item& orig) {
 	this->noOptions = 0;
+    this->finalPole = orig.finalPole;
 	this->noPoles = orig.noPoles;
 	this->noDiscs = orig.noDiscs;
 	this->previousStep = NULL;
@@ -41,12 +46,12 @@ Item::Item(const Item& orig) {
 	this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
-	//this->poles = new Pole[this->noPoles];
+	this->poles = vector<Pole*>(noPoles, NULL);
 	this->executedStep = NULL;
 
-/*	for(int i = 0; i<this->noPoles; i++){
-		this->poles[i].copy(orig.poles[i]);
-	}*/
+	for(int i = 0; i<this->noPoles; i++){
+		this->poles[i] = orig.poles[i];
+	}
 
 
 }
@@ -57,7 +62,7 @@ Item::~Item() {
 		delete[] this->options[i];
 	}
 	delete[] this->options;
-	delete[] this->poles;
+//	delete this->poles;
 	delete[] this->executedStep;
 }
 
@@ -70,14 +75,14 @@ void Item::setPrevious(Item* item){
 }
 
 Pole* Item::getPole(int id){
-	return &this->poles[id];
+	return this->poles[id];
 }
 
 void Item::generateOptions(){
-/*	this->noOptions = 0;
+	this->noOptions = 0;
 	for(int activePole = 0; activePole< noPoles; activePole++) {
-		Disc* disc = this->poles[activePole].getLastDisc();
-		if(disc == NULL) {
+        short disc = this->poles[activePole]->getLastDiscSize();
+		if(disc == 0) {
 
 			for(int i = 0; i< this->noPoles; i++){
 				this->options[activePole][i] = false;
@@ -85,9 +90,9 @@ void Item::generateOptions(){
 			continue;
 		}
 
-		if(this->poles[activePole].isFinal() && disc !=NULL)
+        if(activePole == this->finalPole && disc !=0)
 		{
-			if((1 + this->noDiscs - this->poles[activePole].getNoDiscs()) == disc->getSize()){
+			if((1 + this->noDiscs - this->poles[activePole]->getNoDiscs()) == disc){
 				//makes impossible to move discs in final position
 				for(int i = 0; i< this->noPoles; i++){
 					this->options[activePole][i] = false;
@@ -103,12 +108,12 @@ void Item::generateOptions(){
 			if(this->executedStep != NULL && activePole == this->executedStep[1] && i == executedStep[0]) {
 				continue;
 			}
-			if(this->poles[i].canAddDisc(disc)){
+			if(this->poles[i]->canAddDisc(disc)){
 				this->options[activePole][i] = true;
 				this->noOptions++;
 			}
 		}
-	} */   
+	}    
 }
 
 bool Item::hasOption(){
@@ -137,10 +142,14 @@ finish:
 }
 
 void Item::doStep(int* step){
-/*	this->executedStep = step;
-//	cout << step[0] << " " << step[1] << endl;
-	Disc* disc = this->poles[step[0]].popLastDisc();
-	this->poles[step[1]].addDisc(disc);*/
+	this->executedStep = step;
+    int startScore = this->poles[step[0]]->getScore();
+    int endScore = this->poles[step[1]]->getScore();
+
+	this->poles[step[1]] = this->getPoleWithScore(endScore + pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
+    this->poles[step[0]] = this->getPoleWithScore(startScore - pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
+    
+
 }
 
 int Item::getStep(){
@@ -167,18 +176,20 @@ void Item::incrementRecursionLevel() {
 }
 
 void Item::generateAllPoles(int noDiscs) {
-    int arraySize = noCombinations(noDiscs, noDiscs);
-    this->allPoles = new Pole[arraySize];
+    this->allPolesSize = noCombinations(noDiscs, noDiscs)+1;
+    this->allPoles = new Pole[this->allPolesSize];
+    this->allPoles[0] = *new Pole();
+    this->allPoles[0].init(noDiscs);
     short* items = new short[noDiscs];
     for(int i=0; i<noDiscs; i++) {
         items[i] = i+1;
     }
-    int pole = 0;
+    int pole = 1;
     for(int size = noDiscs; size > 0; size--) {
         vector<short> ix(size);
         vector<vector<short>> combinations(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size))));
         int x = 0;
-        combinations_recursive(items, noDiscs, size,ix,0,0, combinations, x);
+        getCombinations(items, noDiscs, size,ix,0,0, combinations, x);
 
         for(int i = 0; combinations.size() > i; i++) {
             this->allPoles[pole].init(noDiscs);
@@ -204,7 +215,7 @@ int Item::factorial (int a)
   else
    return (1);
 }
-void combinations_recursive(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
+void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
     unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize)
 {
     // Have we selected the requested number of elements?
@@ -223,8 +234,28 @@ void combinations_recursive(short* items, short itemsSize, unsigned short combin
     // selected one.
     for (unsigned long ii = margin; ii < itemsSize; ++ii) {
         returned[depth] = ii+1;
-        combinations_recursive(items, itemsSize, combinationLength, returned, depth + 1, ii + 1, combinations, combinationsSize);
+        getCombinations(items, itemsSize, combinationLength, returned, depth + 1, ii + 1, combinations, combinationsSize);
     }
     return;
+}
+void Item::setFinalPole(int poleNr) {
+    this->finalPole = poleNr;
+}
+
+void Item::addDiscOnPole(int pole, int discSize) {
+    unsigned int score = this->poles[pole]->getScore();
+    unsigned int newScore = score + pow((float)2, discSize-1);
+    this->poles[pole] = this->getPoleWithScore(newScore);
+
+}
+
+Pole* Item::getPoleWithScore(unsigned int score) {
+    int i=0;
+    for(; i < this->allPolesSize; i++) {
+        if(this->allPoles[i].getScore() == score) {
+            break;
+        }
+    }
+    return &this->allPoles[i];
 }
 

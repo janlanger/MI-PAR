@@ -6,13 +6,14 @@
 */
 
 #include <locale.h>
+#include <math.h>
 
 #include "Pole.h"
 
 Pole::Pole() {
-    
+    this->discs = NULL;
     this->discsOnPole = 0;
-	this->final = false;
+    this->score = 0;
 }
 void Pole::init(short maxNoDiscs) {
     this->discs = new short[maxNoDiscs];
@@ -24,7 +25,8 @@ void Pole::init(short maxNoDiscs) {
 
 
 Pole::~Pole() {
-	delete[] this->discs;
+    if(discs != NULL)
+	    delete[] this->discs;
 }
 
 bool Pole::canAddDisc(short diskSize) {
@@ -35,6 +37,7 @@ void Pole::addDisc(short diskSize) {
     if (!this->canAddDisc(diskSize))
 		throw "Is not possible to add bigger to the smaller disc.";
     this->discs[this->discsOnPole++] = diskSize;
+    this->recountScore();
 }
 
 short Pole::getLastDiscSize(){
@@ -45,10 +48,6 @@ short Pole::getLastDiscSize(){
     }
 }
 
-void Pole::setFinal(bool final){
-	this->final = final;
-}
-
 short Pole::popLastDisc(){
     return this->discs[this->discsOnPole-- -1];
 }
@@ -57,10 +56,17 @@ int Pole::getNoDiscs(){
     return this->discsOnPole;
 }
 
-bool Pole::isFinal(){
-	return this->final;
-}
-
 short* Pole::getDiscs() {
     return this->discs;
+}
+
+void Pole::recountScore() {
+    this->score = 0;
+    for(int i=0; i<this->discsOnPole; i++) {
+        this->score += ceil(pow((float)2, this->discs[i] -1));
+    }
+}
+
+unsigned int Pole::getScore() {
+    return this->score;
 }

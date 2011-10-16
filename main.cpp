@@ -18,14 +18,13 @@
 
 using namespace std;
 
-Item* generateInitState(int n, int s){
+Item* generateInitState(int n, int s, int f){
 	Item* item = new Item(s, n);
-
+    item->setFinalPole(f);
 	/* initialize random seed: */
 	srand ( time(NULL) );
 	for( int i = 0 ; i<n; i++){
-		Pole* pole = item->getPole(/*(rand() % s)*/0);
-		pole->addDisc(n-i);
+		item->addDiscOnPole(/*(rand() % s)*/0, n-i);
 	}
 	item->generateOptions();
 
@@ -62,8 +61,7 @@ int main(int argc, char** argv) {
 	clock_t runtime = clock();
 
 	Step* solution = NULL;
-	Item* initial = generateInitState(n, s);
-	initial->getPole(f)->setFinal(true);
+	Item* initial = generateInitState(n, s, f);
 
 	// vypis zakladni konfigurace
 	cout << "Initial configuration: \r\n";
