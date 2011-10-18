@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 	cout <<"Number of moves: " << (limit+1) << "\r\n";
 	SolutionStep* tmp = solution; //stores top of solution stack for destruct call;
 	while(solution != NULL){
-		cout <<"Move disc " << solution->getDisc() << " from " << solution->getFrom() << " to " << solution->getTo()<< "\r\n";
+		cout <<"Move disc " << solution->getDisc() << " from " << solution->getFrom()+1 << " to " << solution->getTo()+1 << "\r\n";
 		solution = solution->getNext();
 	} 
 	delete tmp;
