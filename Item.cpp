@@ -152,11 +152,11 @@ void Item::doStep(int* step){
     this->poles[step[0]] = this->getPoleWithScore(startScore - pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
 }
 
-int Item::getStep(){
+int Item::getStepEndPole(){
 	return this->executedStep[1];
 }
 
-int Item::getActivePole(){
+int Item::getStepStartPole(){
 	return this->executedStep[0];
 }
 
@@ -205,13 +205,6 @@ void Item::generateAllPoles(int noDiscs) {
     delete[] items;
 }
 
-int Item::noCombinations(int n, int k) {
-    if(k > 1) {
-        return factorial(n)/(factorial(k)*(factorial(n-k))) + noCombinations(n,k-1);
-    } else {
-        return n;
-    }
-}
 int Item::factorial (int a)
 {
   if (a > 1)

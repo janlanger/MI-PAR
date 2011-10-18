@@ -107,9 +107,9 @@ int main(int argc, char** argv) {
 			limit = item->getRecursionLevel() - 1;
 			cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
 			while(NULL != item->getPreviousStep()){
-				disc = item->getPole(item->getStep())->getLastDiscSize();
-				from = item->getActivePole();
-				to = item->getStep();
+                disc = item->getPole(item->getStepEndPole())->getLastDiscSize();
+                from = item->getStepStartPole();
+				to = item->getStepEndPole();
 				solution = new Step(disc, from, to, solution);
 				item = item->getPreviousStep();
 

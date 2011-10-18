@@ -26,8 +26,8 @@ public:
     bool hasOption();
     int* popOption();
     void doStep(int* step);
-    int getStep();
-    int getActivePole();
+    int getStepStartPole();
+    int getStepEndPole();
 	void setPreviousStep(Item* item);
 	Item* getPreviousStep();
 	void incrementRecursionLevel();
@@ -38,15 +38,14 @@ public:
 private:
     static Pole* allPoles;
     static int allPolesSize;
-    short finalPole;
     void generateAllPoles(int noDiscs);
+
+    short finalPole;
     Pole* getPoleWithScore(unsigned int score);
-    int noCombinations(int n, int k);
     int factorial(int a);
     void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
     Item* previous;
 	Item* previousStep;
-    void* pp;
     Pole** poles;
     bool** options;
     int noPoles;

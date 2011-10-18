@@ -11,12 +11,12 @@
 class Pole {
 public:
     Pole();
+    Pole(const Pole& orig);
     void init(short maxNoDiscs);
     virtual ~Pole();
     bool canAddDisc(short diskSize);
     void addDisc(short diskSize);
     short getLastDiscSize();
-    short popLastDisc();
     int getNoDiscs();
     short* getDiscs();
     unsigned int getScore();

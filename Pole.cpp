@@ -15,6 +15,11 @@ Pole::Pole() {
     this->discsOnPole = 0;
     this->score = 0;
 }
+
+Pole::Pole(const Pole& orig) {
+    throw "Copy of pole is not allowed";
+}
+
 void Pole::init(short maxNoDiscs) {
     this->discs = new short[maxNoDiscs];
     for(int i=0; i<maxNoDiscs; i++) {
@@ -46,10 +51,6 @@ short Pole::getLastDiscSize(){
     } else {
         return this->discs[this->discsOnPole-1];
     }
-}
-
-short Pole::popLastDisc(){
-    return this->discs[this->discsOnPole-- -1];
 }
 
 int Pole::getNoDiscs(){
