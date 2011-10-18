@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
 			delete stack->pop();
 			continue;
 		}
-		if(item->getRecursionLevel() >= limit) {
+        if(item->getRecursionLevel() >= limit || ((n- item->getPole(f)->getNoDiscs()) <= s && item->getRecursionLevel() > limit - (n- item->getPole(f)->getNoDiscs()))) {
 			delete stack->pop();
 			continue;
 		}
