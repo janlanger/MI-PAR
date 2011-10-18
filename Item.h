@@ -47,7 +47,7 @@ private:
     Item* previous;
 	Item* previousStep;
     void* pp;
-    std::vector<Pole*> poles;
+    Pole** poles;
     bool** options;
     int noPoles;
     int noDiscs;

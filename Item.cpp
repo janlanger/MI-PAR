@@ -25,10 +25,11 @@ Item::Item(int noPoles, int noDiscs) {
 	this->noPoles = noPoles;
 	this->executedStep = NULL;
 	this->noDiscs = noDiscs;
-    this->poles = vector<Pole*>(noDiscs, &this->allPoles[0]);
+    this->poles = new Pole*[noDiscs];
     this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) {
 		this->options[i] = new bool[noPoles];
+        this->poles[i] = &this->allPoles[0];
     }
 	this->previous = NULL;
 	this->previousStep = NULL;
@@ -44,7 +45,7 @@ Item::Item(const Item& orig) {
 	this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
-	this->poles = vector<Pole*>(noPoles, NULL);
+    this->poles = new Pole*[noPoles];
 	this->executedStep = NULL;
 
 	for(int i = 0; i<this->noPoles; i++){
@@ -60,7 +61,7 @@ Item::~Item() {
 		delete[] this->options[i];
 	}
 	delete[] this->options;
-
+    delete[] this->poles;
 	delete[] this->executedStep;
     if(this->previous == NULL) {
         delete[] this->allPoles;
@@ -149,8 +150,6 @@ void Item::doStep(int* step){
 
 	this->poles[step[1]] = this->getPoleWithScore(endScore + pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
     this->poles[step[0]] = this->getPoleWithScore(startScore - pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
-    
-
 }
 
 int Item::getStep(){
@@ -177,26 +176,30 @@ void Item::incrementRecursionLevel() {
 }
 
 void Item::generateAllPoles(int noDiscs) {
-    this->allPolesSize = noCombinations(noDiscs, noDiscs)+1;
+    //this->allPolesSize = noCombinations(noDiscs, noDiscs)+1;
+    this->allPolesSize = pow((float) 2,noDiscs);
     this->allPoles = new Pole[this->allPolesSize];
     this->allPoles[0].init(noDiscs);
     short* items = new short[noDiscs];
     for(int i=0; i<noDiscs; i++) {
         items[i] = i+1;
     }
-    int pole = 1;
+
     for(int size = noDiscs; size > 0; size--) {
         vector<short> ix(size);
         vector<vector<short>> combinations(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size))));
         int x = 0;
         getCombinations(items, noDiscs, size,ix,0,0, combinations, x);
-
+        
         for(int i = 0; combinations.size() > i; i++) {
+            int pole = 0;
+            for(int x=0; x < combinations[i].size(); x++) {
+                pole +=(int) ceil(pow((float)2, combinations[i][x] -1));
+            }
             this->allPoles[pole].init(noDiscs);
             for(int j = combinations[i].size()-1; j >= 0; j--) {
                 this->allPoles[pole].addDisc(combinations[i][j]);
             }
-            pole++;
         }
     }
     delete[] items;
@@ -251,6 +254,7 @@ void Item::addDiscOnPole(int pole, int discSize) {
 }
 
 Pole* Item::getPoleWithScore(unsigned int score) {
+    return &this->allPoles[score];
     int i=0;
     for(; i < this->allPolesSize; i++) {
         if(this->allPoles[i].getScore() == score) {
