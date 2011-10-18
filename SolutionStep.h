@@ -8,21 +8,21 @@
 #ifndef STEP_H
 #define	STEP_H
 
-class Step {
+class SolutionStep {
 public:
-    Step(int disc, int from, int to, Step* next);
-    Step(const Step& orig);
-    virtual ~Step();
+    SolutionStep(int disc, int from, int to, SolutionStep* next);
+    SolutionStep(const SolutionStep& orig);
+    virtual ~SolutionStep();
     int getDisc();
     int getFrom();
     int getTo();
-    Step* getNext();
+    SolutionStep* getNext();
     bool hasNext();
 private:
     int disc;
     int from;
     int to;
-    Step* next;
+    SolutionStep* next;
 
 };
 

@@ -5,40 +5,40 @@
  * Created on 5. říjen 2011, 18:49
  */
 #include <locale.h>
-#include "Step.h"
+#include "SolutionStep.h"
 
-Step::Step(int disc, int from, int to, Step* next) {
+SolutionStep::SolutionStep(int disc, int from, int to, SolutionStep* next) {
     this->disc = disc;
     this->from = from;
     this->to = to;
     this->next = next;
 }
 
-Step::Step(const Step& orig) {
+SolutionStep::SolutionStep(const SolutionStep& orig) {
 }
 
-Step::~Step() {
+SolutionStep::~SolutionStep() {
 	if(this->next != NULL)
 		delete this->next;
 }
 
-int Step::getDisc() {
+int SolutionStep::getDisc() {
     return this->disc;
 }
 
-int Step::getFrom() {
+int SolutionStep::getFrom() {
     return this->from;
 }
 
-int Step::getTo() {
+int SolutionStep::getTo() {
     return this->to;
 }
 
-Step* Step::getNext() {
+SolutionStep* SolutionStep::getNext() {
     return this->next;
 }
 
-bool Step::hasNext(){
+bool SolutionStep::hasNext(){
     return (this->next != NULL );
 }
 

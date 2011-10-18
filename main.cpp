@@ -14,7 +14,7 @@
 #include "Item.h"
 #include "Pole.h"
 #include "Stack.h"
-#include "Step.h"
+#include "SolutionStep.h"
 
 using namespace std;
 
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	f--;
 	clock_t runtime = clock();
 
-	Step* solution = NULL;
+	SolutionStep* solution = NULL;
 	Item* initial = generateInitState(n, s, f);
 
 	// vypis zakladni konfigurace
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
                 disc = item->getPole(item->getStepEndPole())->getLastDiscSize();
                 from = item->getStepStartPole();
 				to = item->getStepEndPole();
-				solution = new Step(disc, from, to, solution);
+				solution = new SolutionStep(disc, from, to, solution);
 				item = item->getPreviousStep();
 
 			}
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
 	cout << "\n\n-------------\n";
 	cout << "I have solution! \n";
 	cout <<"Number of moves: " << (limit+1) << "\r\n";
-	Step* tmp = solution; //stores top of solution stack for destruct call;
+	SolutionStep* tmp = solution; //stores top of solution stack for destruct call;
 	while(solution != NULL){
 		cout <<"Move disc " << solution->getDisc() << " from " << solution->getFrom() << " to " << solution->getTo()<< "\r\n";
 		solution = solution->getNext();
