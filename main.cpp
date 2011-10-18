@@ -105,7 +105,11 @@ int main(int argc, char** argv) {
 			int from;
 			int to;
 			limit = item->getRecursionLevel() - 1;
-			cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+            if(limit < 0) {
+                cout << "Initial state is also final state. Abort." << endl;
+            } else {
+			    cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+            }
 			while(NULL != item->getPreviousStep()){
                 disc = item->getPole(item->getStepEndPole())->getLastDiscSize();
                 from = item->getStepStartPole();
