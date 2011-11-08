@@ -8,6 +8,7 @@
 #include <locale.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 #include "Item.h"
 #include "Pole.h"
 
@@ -20,7 +21,7 @@ Item::Item(int noPoles, int noDiscs) {
     if(this->allPoles == NULL) {
         this->generateAllPoles(noDiscs);
     }
-    this->finalPole = NULL;
+    this->finalPole = 0;
 	this->recursionLevel = 0;
 	this->noPoles = noPoles;
 	this->executedStep = NULL;
@@ -61,7 +62,9 @@ Item::~Item() {
 		delete[] this->options[i];
 	}
 	delete[] this->options;
+try{
     delete[] this->poles;
+} catch (const char* str) {}
 	delete[] this->executedStep;
     if(this->previous == NULL) {
         delete[] this->allPoles;
@@ -148,8 +151,8 @@ void Item::doStep(int* step){
     int startScore = this->poles[step[0]]->getScore();
     int endScore = this->poles[step[1]]->getScore();
 
-	this->poles[step[1]] = this->getPoleWithScore(endScore + pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
-    this->poles[step[0]] = this->getPoleWithScore(startScore - pow((float)2, this->poles[step[0]]->getLastDiscSize()-1));
+    this->poles[step[1]] = this->getPoleWithScore(endScore + (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
+    this->poles[step[0]] = this->getPoleWithScore(startScore - (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
 }
 
 int Item::getStepEndPole(){
@@ -177,7 +180,7 @@ void Item::incrementRecursionLevel() {
 
 void Item::generateAllPoles(int noDiscs) {
     //this->allPolesSize = noCombinations(noDiscs, noDiscs)+1;
-    this->allPolesSize = pow((float) 2,noDiscs);
+    this->allPolesSize = (int) pow((float) 2,noDiscs);
     this->allPoles = new Pole[this->allPolesSize];
     this->allPoles[0].init(noDiscs);
     short* items = new short[noDiscs];
@@ -187,13 +190,13 @@ void Item::generateAllPoles(int noDiscs) {
 
     for(int size = noDiscs; size > 0; size--) {
         vector<short> ix(size);
-        vector<vector<short>> combinations(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size))));
+        vector<vector<short> > combinations((long)(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size)))));
         int x = 0;
         getCombinations(items, noDiscs, size,ix,0,0, combinations, x);
         
-        for(int i = 0; combinations.size() > i; i++) {
+        for(unsigned int i = 0; combinations.size() > i; i++) {
             int pole = 0;
-            for(int x=0; x < combinations[i].size(); x++) {
+            for(unsigned int x=0; x < combinations[i].size(); x++) {
                 pole +=(int) ceil(pow((float)2, combinations[i][x] -1));
             }
             this->allPoles[pole].init(noDiscs);
@@ -205,15 +208,15 @@ void Item::generateAllPoles(int noDiscs) {
     delete[] items;
 }
 
-int Item::factorial (int a)
+double Item::factorial (double a)
 {
   if (a > 1)
    return (a * factorial (a-1));
   else
    return (1);
 }
-void Item::getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned,
-    unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize)
+void Item::getCombinations(short* items, unsigned short itemsSize, unsigned short combinationLength, vector<short> &returned,
+    unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize)
 {
     // Have we selected the requested number of elements?
     if (depth >= combinationLength) {
@@ -241,19 +244,12 @@ void Item::setFinalPole(int poleNr) {
 
 void Item::addDiscOnPole(int pole, int discSize) {
     unsigned int score = this->poles[pole]->getScore();
-    unsigned int newScore = score + pow((float)2, discSize-1);
+    unsigned int newScore = score + (int) pow((float)2, discSize-1);
     this->poles[pole] = this->getPoleWithScore(newScore);
 
 }
 
-Pole* Item::getPoleWithScore(unsigned int score) {
+Pole* Item::getPoleWithScore(int score) {
     return &this->allPoles[score];
-    int i=0;
-    for(; i < this->allPolesSize; i++) {
-        if(this->allPoles[i].getScore() == score) {
-            break;
-        }
-    }
-    return &this->allPoles[i];
 }
 

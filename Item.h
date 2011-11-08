@@ -41,9 +41,9 @@ private:
     void generateAllPoles(int noDiscs);
 
     short finalPole;
-    Pole* getPoleWithScore(unsigned int score);
-    int factorial(int a);
-    void getCombinations(short* items, short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short>> &combinations, int &combinationsSize);
+    Pole* getPoleWithScore(int score);
+    double factorial(double a);
+    void getCombinations(short* items, unsigned short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize);
     Item* previous;
 	Item* previousStep;
     Pole** poles;
