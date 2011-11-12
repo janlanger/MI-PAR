@@ -10,6 +10,7 @@
 #include <locale.h>
 #include <vector>
 #include "Pole.h"
+#include <string>
 
 using namespace std;
 
@@ -34,6 +35,7 @@ public:
 	int getRecursionLevel();
     void setFinalPole(int poleNr);
     void addDiscOnPole(int pole, int discSize);
+    string getSolution();
     
 private:
     static Pole* allPoles;
@@ -53,6 +55,7 @@ private:
     int noOptions;
 	int* executedStep;
 	int recursionLevel;
+    string solution;
     
 };
 

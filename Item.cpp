@@ -8,6 +8,9 @@
 #include <locale.h>
 #include <iostream>
 #include <vector>
+#include <string>
+#include <stdlib.h>
+#include <sstream>
 #include <math.h>
 #include "Item.h"
 #include "Pole.h"
@@ -44,6 +47,7 @@ Item::Item(const Item& orig) {
 	this->previousStep = NULL;
 	this->recursionLevel = orig.recursionLevel;
 	this->options = new bool *[noPoles];
+    this->solution = orig.solution;
 	for(int i=0; i<noPoles; i++) 
 		this->options[i] = new bool[noPoles];
     this->poles = new Pole*[noPoles];
@@ -153,6 +157,14 @@ void Item::doStep(int* step){
 
     this->poles[step[1]] = this->getPoleWithScore(endScore + (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
     this->poles[step[0]] = this->getPoleWithScore(startScore - (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
+    std::stringstream out;
+    
+    out <<  this->poles[step[1]]->getLastDiscSize() << ": ";
+    out <<  step[0] + 1 ;
+    out << " > "; 
+    out <<  step[1] + 1 ;
+    out << ";"<< endl;
+    this->solution += out.str();
 }
 
 int Item::getStepEndPole(){
@@ -251,5 +263,9 @@ void Item::addDiscOnPole(int pole, int discSize) {
 
 Pole* Item::getPoleWithScore(int score) {
     return &this->allPoles[score];
+}
+
+string Item::getSolution() {
+    return solution;
 }
 

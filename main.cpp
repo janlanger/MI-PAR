@@ -15,6 +15,7 @@
 #include "Pole.h"
 #include "Stack.h"
 #include "SolutionStep.h"
+//#include "mpi.h"
 
 using namespace std;
 
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
 	f--;
 	clock_t runtime = clock();
 
-	SolutionStep* solution = NULL;
+	string solution;
 	Item* initial = generateInitState(n, s, f);
 
 	// vypis zakladni konfigurace
@@ -97,29 +98,13 @@ int main(int argc, char** argv) {
 	{
 		item = stack->head();
 		if(n == item->getPole(f)->getNoDiscs()){
-			if(solution != NULL) {
-				delete solution;
-				solution = NULL;
-			}
-			int disc;
-			int from;
-			int to;
 			limit = item->getRecursionLevel() - 1;
             if(limit < 0) {
                 cout << "Initial state is also final state. Abort." << endl;
             } else {
 			    cout << "Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+                solution = item->getSolution();
             }
-			while(NULL != item->getPreviousStep()){
-                disc = item->getPole(item->getStepEndPole())->getLastDiscSize();
-                from = item->getStepStartPole();
-				to = item->getStepEndPole();
-				solution = new SolutionStep(disc, from, to, solution);
-				item = item->getPreviousStep();
-
-			}
-
-
 		}
 		if(!item->hasOption()){
 			delete stack->pop();
@@ -146,15 +131,8 @@ int main(int argc, char** argv) {
 	cout << "RUN TIME: " << (double) (clock() - runtime) / CLOCKS_PER_SEC << endl;
 	cout << "\n\n-------------\n";
 	cout << "I have solution! \n";
-	cout <<"Number of moves: " << (limit+1) << "\r\n";
-	SolutionStep* tmp = solution; //stores top of solution stack for destruct call;
-	while(solution != NULL){
-		cout <<"Move disc " << solution->getDisc() << " from " << solution->getFrom()+1 << " to " << solution->getTo()+1 << "\r\n";
-		solution = solution->getNext();
-	} 
-	delete tmp;
-	delete stack;
-
+	cout << "Number of moves: " << (limit+1) << "\r\n";
+    cout << solution << endl;
 	cin.clear();
 	cin.ignore(2);
 //	_CrtDumpMemoryLeaks();
