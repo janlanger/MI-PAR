@@ -42,22 +42,36 @@ int getUpperBound(double n, double s) {
 */
 int main(int argc, char** argv) {
 	
+    if(argc != 4) {
+        cout << "[ERROR]: Bad program call" << endl;
+        cout << "Usage" << endl;
+        cout << argv[0]<<" <n> <s> <f>" << endl;
+        cout << " <n> - number of discs" << endl;
+        cout << " <s> - number of poles" << endl;
+        cout << " <f> - final pole" << endl;
+        return 1;
+    }
+    
 	int n, s, f;
-
-	cout << "Enter number of discs: ";
-	cin >> n;
-	cout << "Enter number of poles [>=" << max(3, n/4) << "]: ";
-	cin >> s;
+    
+    n = atoi(argv[1]);
+    s = atoi(argv[2]);
+    f = atoi(argv[3]);
+    
 	if(s < max(3, n/4)) {
-		cout << "invalid pole number";
-		return -1;
+		cout << "[ERROR]: Invalid number of poles. The minimum is "<< max(3, n/4) << '.' << endl;
+		return 2;
 	}
-	cout << "Enter number of final pole [1-" << s << "]: ";
-	cin >> f;
+    
 	if(f < 1 || f > s) {
-		cout << "invalid final pole number";
-		return -1;
+		cout << "[ERROR]: Invalid final pole. It has to be from interval [1," << s << "]" << endl;
+		return 3;
 	}
+	cout << "SETUP" << endl;
+	cout << "Number of discs: " << n << endl;
+	cout << "Number of poles: " << s << endl;
+	cout << "Final pole: " << f << endl << endl; 
+    
 	f--;
 	clock_t runtime = clock();
 
