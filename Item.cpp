@@ -1,7 +1,7 @@
-/* 
+/*
 * File:   Item.cpp
 * Author: Honza
-* 
+*
 * Created on 5. říjen 2011, 14:57
 */
 
@@ -21,173 +21,209 @@ Pole* Item::allPoles = NULL;
 int Item::allPolesSize = 0;
 
 Item::Item(int noPoles, int noDiscs) {
-    if(this->allPoles == NULL) {
+    if (this->allPoles == NULL) {
         this->generateAllPoles(noDiscs);
     }
     this->finalPole = 0;
-	this->recursionLevel = 0;
-	this->noPoles = noPoles;
-	this->executedStep = NULL;
-	this->noDiscs = noDiscs;
+    this->recursionLevel = 0;
+    this->noPoles = noPoles;
+    this->executedStep = NULL;
+    this->noDiscs = noDiscs;
     this->poles = new Pole*[noDiscs];
     this->options = new bool *[noPoles];
-	for(int i=0; i<noPoles; i++) {
-		this->options[i] = new bool[noPoles];
+    for (int i=0; i<noPoles; i++) {
+        this->options[i] = new bool[noPoles];
         this->poles[i] = &this->allPoles[0];
     }
-	this->previous = NULL;
-	this->previousStep = NULL;
+    this->previous = NULL;
+}
+
+Item::Item(int noPoles, int noDiscs, string &serialized) {
+    if (this->allPoles == NULL) {
+        this->generateAllPoles(noDiscs);
+    }
+    this->finalPole = 0;
+    this->recursionLevel = 0;
+    this->noPoles = noPoles;
+    this->executedStep = NULL;
+    this->noDiscs = noDiscs;
+    this->poles = new Pole*[noDiscs];
+    this->options = new bool *[noPoles];
+
+    int from = 0;
+    int activePole = 0;
+    int readedPoles = 0;
+    int part = 0;
+    
+    for (unsigned int i = 0; i < serialized.length(); i++) {
+        if ( serialized[i] == ':')
+        {
+            switch (part){
+                case 0:
+                    this->poles[activePole++] = this->getPoleWithScore(atoi(serialized.substr(from,i-1).c_str()));
+                    if(++readedPoles == noPoles){
+                        part++;
+                    }
+                    break;
+                case 1:
+                    this->solution = atoi(serialized.substr(from,i-1).c_str());
+                    part++;
+                    break;
+                case 2:
+                    this->recursionLevel = atoi(serialized.substr(from,i-1).c_str());
+                    part++;
+                    break;
+                case 3:
+                    *this->executedStep = atoi(serialized.substr(from,i-1).c_str());
+                    break;
+            }
+            from = i+1;
+        }
+    }
+    for (int i=0; i<noPoles; i++) {
+        this->options[i] = new bool[noPoles];
+    }
+    this->previous = NULL;
 }
 
 Item::Item(const Item& orig) {
-	this->noOptions = 0;
+    this->noOptions = 0;
     this->finalPole = orig.finalPole;
-	this->noPoles = orig.noPoles;
-	this->noDiscs = orig.noDiscs;
-	this->previousStep = NULL;
-	this->recursionLevel = orig.recursionLevel;
-	this->options = new bool *[noPoles];
+    this->noPoles = orig.noPoles;
+    this->noDiscs = orig.noDiscs;
+    this->recursionLevel = orig.recursionLevel;
+    this->options = new bool *[noPoles];
     this->solution = orig.solution;
-	for(int i=0; i<noPoles; i++) 
-		this->options[i] = new bool[noPoles];
+    for (int i=0; i<noPoles; i++)
+        this->options[i] = new bool[noPoles];
     this->poles = new Pole*[noPoles];
-	this->executedStep = NULL;
+    this->executedStep = NULL;
 
-	for(int i = 0; i<this->noPoles; i++){
-		this->poles[i] = orig.poles[i];
-	}
-
-
+    for (int i = 0; i<this->noPoles; i++) {
+        this->poles[i] = orig.poles[i];
+    }
 }
 
 
 Item::~Item() {
-	for(int i = 0; i<this->noPoles; i++) {
-		delete[] this->options[i];
-	}
-	delete[] this->options;
-try{
-    delete[] this->poles;
-} catch (const char* str) {}
-	delete[] this->executedStep;
-    if(this->previous == NULL) {
+    for (int i = 0; i<this->noPoles; i++) {
+        delete[] this->options[i];
+    }
+    delete[] this->options;
+    try {
+        delete[] this->poles;
+    } catch (const char* str) {}
+    delete[] this->executedStep;
+    if (this->previous == NULL) {
         delete[] this->allPoles;
     }
 }
 
-Item* Item::getPrevious(){
-	return this->previous;
+ Item* Item::getPrevious() {
+     return this->previous;
+ }
+
+void Item::setPrevious(Item* item) {
+    this->previous = item;
 }
 
-void Item::setPrevious(Item* item){
-	this->previous = item;
+Pole* Item::getPole(int id) {
+    return this->poles[id];
 }
 
-Pole* Item::getPole(int id){
-	return this->poles[id];
-}
-
-void Item::generateOptions(){
-	this->noOptions = 0;
-	for(int activePole = 0; activePole< noPoles; activePole++) {
+void Item::generateOptions() {
+    this->noOptions = 0;
+    for (int activePole = 0; activePole< noPoles; activePole++) {
         short disc = this->poles[activePole]->getLastDiscSize();
-		if(disc == 0) {
+        if (disc == 0) {
 
-			for(int i = 0; i< this->noPoles; i++){
-				this->options[activePole][i] = false;
-			}
-			continue;
-		}
+            for (int i = 0; i< this->noPoles; i++) {
+                this->options[activePole][i] = false;
+            }
+            continue;
+        }
 
-        if(activePole == this->finalPole && disc !=0)
-		{
-			if((1 + this->noDiscs - this->poles[activePole]->getNoDiscs()) == disc){
-				//makes impossible to move discs in final position
-				for(int i = 0; i< this->noPoles; i++){
-					this->options[activePole][i] = false;
-				}
-				continue;
-			}
-		}
-		for(int i = 0; i< this->noPoles; i++){
-			this->options[activePole][i] = false;
-			if(i==activePole ){
-				continue;
-			}
-			if(this->executedStep != NULL && activePole == this->executedStep[1] && i == executedStep[0]) {
-				continue;
-			}
-			if(this->poles[i]->canAddDisc(disc)){
-				this->options[activePole][i] = true;
-				this->noOptions++;
-			}
-		}
-	}    
+        if (activePole == this->finalPole && disc !=0)
+        {
+            if ((1 + this->noDiscs - this->poles[activePole]->getNoDiscs()) == disc) {
+                //makes impossible to move discs in final position
+                for (int i = 0; i< this->noPoles; i++) {
+                    this->options[activePole][i] = false;
+                }
+                continue;
+            }
+        }
+        for (int i = 0; i< this->noPoles; i++) {
+            this->options[activePole][i] = false;
+            if (i==activePole ) {
+                continue;
+            }
+            if (this->executedStep != NULL && activePole == this->executedStep[1] && i == executedStep[0]) {
+                continue;
+            }
+            if (this->poles[i]->canAddDisc(disc)) {
+                this->options[activePole][i] = true;
+                this->noOptions++;
+            }
+        }
+    }
 }
 
-bool Item::hasOption(){
-	return (this->noOptions > 0);
+bool Item::hasOption() {
+    return (this->noOptions > 0);
 }
 
-int* Item::popOption(){
-	if(!this->hasOption()){
-		throw "No options left.";
-	}
-	int* option = new int[2];
+int* Item::popOption() {
+    if (!this->hasOption()) {
+        throw "No options left.";
+    }
+    int* option = new int[2];
 
-	for(int startPole=0; startPole<this->noPoles; startPole++) {
-		for(int endPole = 0; endPole < this->noPoles; endPole++) {
-			if(this->options[startPole][endPole] == true) {
-				this->noOptions--;
-				option[0] = startPole;
-				option[1] = endPole;
-				this->options[startPole][endPole] = false;
-				goto finish;
-			}
-		}
-	}
+    for (int startPole=0; startPole<this->noPoles; startPole++) {
+        for (int endPole = 0; endPole < this->noPoles; endPole++) {
+            if (this->options[startPole][endPole] == true) {
+                this->noOptions--;
+                option[0] = startPole;
+                option[1] = endPole;
+                this->options[startPole][endPole] = false;
+                goto finish;
+            }
+        }
+    }
 finish:
-	return option;
+    return option;
 }
 
-void Item::doStep(int* step){
-	this->executedStep = step;
+void Item::doStep(int* step) {
+    this->executedStep = step;
     int startScore = this->poles[step[0]]->getScore();
     int endScore = this->poles[step[1]]->getScore();
 
     this->poles[step[1]] = this->getPoleWithScore(endScore + (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
     this->poles[step[0]] = this->getPoleWithScore(startScore - (int) ceil(pow((float)2, this->poles[step[0]]->getLastDiscSize()-1)));
     std::stringstream out;
-    
-    out <<  this->poles[step[1]]->getLastDiscSize() << ": ";
+
+    out << '(' << this->poles[step[1]]->getLastDiscSize() << ") ";
     out <<  step[0] + 1 ;
-    out << " > "; 
+    out << " > ";
     out <<  step[1] + 1 ;
-    out << ";"<< endl;
+    out << ";" << endl;
     this->solution += out.str();
 }
 
-int Item::getStepEndPole(){
-	return this->executedStep[1];
+int Item::getStepEndPole() {
+    return this->executedStep[1];
 }
 
-int Item::getStepStartPole(){
-	return this->executedStep[0];
-}
-
-void Item::setPreviousStep(Item* item) {
-	this->previousStep = item;
-}
-
-Item* Item::getPreviousStep(){
-	return this->previousStep;
+int Item::getStepStartPole() {
+    return this->executedStep[0];
 }
 
 int Item::getRecursionLevel() {
-	return recursionLevel;
+    return recursionLevel;
 }
 void Item::incrementRecursionLevel() {
-	recursionLevel++;
+    recursionLevel++;
 }
 
 void Item::generateAllPoles(int noDiscs) {
@@ -196,23 +232,23 @@ void Item::generateAllPoles(int noDiscs) {
     this->allPoles = new Pole[this->allPolesSize];
     this->allPoles[0].init(noDiscs);
     short* items = new short[noDiscs];
-    for(int i=0; i<noDiscs; i++) {
+    for (int i=0; i<noDiscs; i++) {
         items[i] = i+1;
     }
 
-    for(int size = noDiscs; size > 0; size--) {
+    for (int size = noDiscs; size > 0; size--) {
         vector<short> ix(size);
         vector<vector<short> > combinations((long)(factorial(noDiscs)/(factorial(size)*(factorial(noDiscs-size)))));
         int x = 0;
         getCombinations(items, noDiscs, size,ix,0,0, combinations, x);
-        
-        for(unsigned int i = 0; combinations.size() > i; i++) {
+
+        for (unsigned int i = 0; combinations.size() > i; i++) {
             int pole = 0;
-            for(unsigned int x=0; x < combinations[i].size(); x++) {
+            for (unsigned int x=0; x < combinations[i].size(); x++) {
                 pole +=(int) ceil(pow((float)2, combinations[i][x] -1));
             }
             this->allPoles[pole].init(noDiscs);
-            for(int j = combinations[i].size()-1; j >= 0; j--) {
+            for (int j = combinations[i].size()-1; j >= 0; j--) {
                 this->allPoles[pole].addDisc(combinations[i][j]);
             }
         }
@@ -222,13 +258,13 @@ void Item::generateAllPoles(int noDiscs) {
 
 double Item::factorial (double a)
 {
-  if (a > 1)
-   return (a * factorial (a-1));
-  else
-   return (1);
+    if (a > 1)
+        return (a * factorial (a-1));
+    else
+        return (1);
 }
 void Item::getCombinations(short* items, unsigned short itemsSize, unsigned short combinationLength, vector<short> &returned,
-    unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize)
+                           unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize)
 {
     // Have we selected the requested number of elements?
     if (depth >= combinationLength) {
@@ -267,5 +303,27 @@ Pole* Item::getPoleWithScore(int score) {
 
 string Item::getSolution() {
     return solution;
+}
+
+/**
+ * Co je potreba serializovat
+ * 
+ *  * pole scoru        - DONE
+ *  * recursionLevel 
+ *  * solution
+ *  * executedStep 
+ */
+string Item::serialize()
+{
+    std::stringstream out;
+    for (int i = 0; i < noPoles; i++)
+    {
+        out << this->poles[i]->getScore()<<':';
+    }
+    out << this->recursionLevel << ':';
+    out << this->solution << '|';
+    out << this->executedStep;
+
+    return out.str();
 }
 

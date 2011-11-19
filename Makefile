@@ -1,4 +1,4 @@
-CC=g++
+CC=mpiCC
 CFLAGS=-c -Wall -g
 LDFLAGS=
 SOURCES=main.cpp Pole.cpp SolutionStep.cpp Item.cpp Stack.cpp

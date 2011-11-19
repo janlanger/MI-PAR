@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Item.h
  * Author: Honza
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef ITEM_H
-#define	ITEM_H
+#define ITEM_H
 #include <locale.h>
 #include <vector>
 #include "Pole.h"
@@ -18,6 +18,7 @@ class Item {
 public:
 
     Item(int noPoles, int noDiscs);
+    Item(int noPoles, int noDiscs, string &serialized);
     Item(const Item& orig);
     virtual ~Item();
     Item* getPrevious();
@@ -29,14 +30,13 @@ public:
     void doStep(int* step);
     int getStepStartPole();
     int getStepEndPole();
-	void setPreviousStep(Item* item);
-	Item* getPreviousStep();
-	void incrementRecursionLevel();
-	int getRecursionLevel();
+    void incrementRecursionLevel();
+    int getRecursionLevel();
     void setFinalPole(int poleNr);
     void addDiscOnPole(int pole, int discSize);
     string getSolution();
-    
+    string serialize();
+
 private:
     static Pole* allPoles;
     static int allPolesSize;
@@ -47,17 +47,16 @@ private:
     double factorial(double a);
     void getCombinations(short* items, unsigned short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize);
     Item* previous;
-	Item* previousStep;
     Pole** poles;
     bool** options;
     int noPoles;
     int noDiscs;
     int noOptions;
-	int* executedStep;
-	int recursionLevel;
+    int* executedStep;
+    int recursionLevel;
     string solution;
-    
+
 };
 
-#endif	/* ITEM_H */
+#endif  /* ITEM_H */
 
