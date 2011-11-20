@@ -10,6 +10,7 @@
 #include <iostream>
 #include <time.h>
 #include <math.h>
+#include <string.h>
 
 #include "Item.h"
 #include "Pole.h"
