@@ -43,20 +43,20 @@ int main(int argc, char** argv) {
 	
 	int n, s, f;
 
-	cout << "Enter number of discs: ";
-	cin >> n;
-	cout << "Enter number of poles [>=" << max(3, n/4) << "]: ";
-	cin >> s;
-	if(s < max(3, n/4)) {
-		cout << "invalid pole number";
-		return -1;
-	}
-	cout << "Enter number of final pole [1-" << s << "]: ";
-	cin >> f;
-	if(f < 1 || f > s) {
-		cout << "invalid final pole number";
-		return -1;
-	}
+	if ( argc != 4 )
+    {
+        cout << "[ERROR]: Bad program call" << endl;
+        cout << "Usage" << endl;
+        cout << argv[0]<<" <n> <s> <f>" << endl;
+        cout << " <n> - number of discs" << endl;
+        cout << " <s> - number of poles" << endl;
+        cout << " <f> - final pole" << endl;
+        return 1;
+    }
+
+    n = atoi ( argv[1] );
+    s = atoi ( argv[2] );
+    f = atoi ( argv[3] );
 	f--;
 	clock_t runtime = clock();
 
