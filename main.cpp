@@ -18,14 +18,32 @@
 
 using namespace std;
 
-Item* generateInitState(int n, int s, int f){
+Item* generateInitState(int n, int s, int f, char* polesConf){
 	Item* item = new Item(s, n);
     item->setFinalPole(f);
 	/* initialize random seed: */
-	srand ((unsigned int) time(NULL) );
+	/*srand ((unsigned int) time(NULL) );
 	for( int i = 0 ; i<n; i++){
-		item->addDiscOnPole(/*(rand() % s)*/0, n-i);
-	}
+		item->addDiscOnPole(/*(rand() % s)/0, n-i);
+	}*/
+    int* poles = new int[s];
+    char * it = strtok(polesConf,":");
+    int charS = sizeof(polesConf)/sizeof(char);
+    int sum = 0;
+    for(int i=0; i<s; i++) {
+        poles[i] = atoi(it);
+        sum += poles[i];
+        it = strtok(NULL,":");        
+    }
+    if(sum+1 != pow(2,(double)n)) {
+       
+        return NULL;
+    }
+    for(int i = 0; i<s; i++) {
+        if(!item->setPole(i, poles[i])) {
+            return NULL;
+        }
+    }
 	item->generateOptions();
 
 	return item;
@@ -43,14 +61,15 @@ int main(int argc, char** argv) {
 	
 	int n, s, f;
 
-	if ( argc != 4 )
+	if ( argc != 5 )
     {
         cout << "[ERROR]: Bad program call" << endl;
         cout << "Usage" << endl;
-        cout << argv[0]<<" <n> <s> <f>" << endl;
+        cout << argv[0]<<" <n> <s> <f> <pole1:pole2...>" << endl;
         cout << " <n> - number of discs" << endl;
         cout << " <s> - number of poles" << endl;
         cout << " <f> - final pole" << endl;
+        cout << " <pole1:pole2...> - score of poles (discs on them), separated by :" << endl;
         return 1;
     }
 
@@ -61,8 +80,11 @@ int main(int argc, char** argv) {
 	clock_t runtime = clock();
 
 	SolutionStep* solution = NULL;
-	Item* initial = generateInitState(n, s, f);
-
+	Item* initial = generateInitState(n, s, f, argv[4]);
+    if(initial == NULL) {
+        cout << "Invalid poles configuration. Abort." << endl;
+        return 2;
+    }
 	// vypis zakladni konfigurace
 	cout << "Initial configuration: \r\n";
 	

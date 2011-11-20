@@ -253,3 +253,15 @@ Pole* Item::getPoleWithScore(int score) {
     return &this->allPoles[score];
 }
 
+bool Item::setPole(int pole, int score) {
+    if(score != 0) {
+        for(int i=0; i<pole; i++) {
+            if(this->poles[i]->getScore() == score) {
+                return false;
+            }
+        }
+    }
+    this->poles[pole] = this->getPoleWithScore(score);
+    return true;
+}
+

@@ -34,6 +34,7 @@ public:
 	int getRecursionLevel();
     void setFinalPole(int poleNr);
     void addDiscOnPole(int pole, int discSize);
+    bool setPole(int pole, int score);
     
 private:
     static Pole* allPoles;
