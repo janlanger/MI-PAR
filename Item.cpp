@@ -45,41 +45,46 @@ Item::Item(int noPoles, int noDiscs, string &serialized) {
     this->finalPole = 0;
     this->recursionLevel = 0;
     this->noPoles = noPoles;
-    this->executedStep = NULL;
+    this->executedStep = new int[2];
     this->noDiscs = noDiscs;
     this->poles = new Pole*[noDiscs];
     this->options = new bool *[noPoles];
 
     int from = 0;
     int activePole = 0;
-    int readedPoles = 0;
     int part = 0;
-    
-    for (unsigned int i = 0; i < serialized.length(); i++) {
+    for (unsigned int i = 1; i < serialized.length(); i++) {
         if ( serialized[i] == ':')
         {
+            
             switch (part){
                 case 0:
-                    this->poles[activePole++] = this->getPoleWithScore(atoi(serialized.substr(from,i-1).c_str()));
-                    if(++readedPoles == noPoles){
+                    this->poles[activePole++] = this->getPoleWithScore(atoi(serialized.substr(from,i-from).c_str()));
+                    if(activePole == noPoles){
                         part++;
                     }
                     break;
                 case 1:
-                    this->solution = atoi(serialized.substr(from,i-1).c_str());
+                    this->solution = serialized.substr(from,i-from).c_str();
                     part++;
                     break;
                 case 2:
-                    this->recursionLevel = atoi(serialized.substr(from,i-1).c_str());
+                    this->recursionLevel = atoi(serialized.substr(from,i-from).c_str());
                     part++;
                     break;
                 case 3:
-                    *this->executedStep = atoi(serialized.substr(from,i-1).c_str());
+                    this->executedStep[0] = atoi(serialized.substr(from,i-from).c_str());
+                    part++;
+                    break;
+                case 4:
+                    this->executedStep[1] = atoi(serialized.substr(from,i-from).c_str());
+                    part++;
                     break;
             }
             from = i+1;
         }
     }
+
     for (int i=0; i<noPoles; i++) {
         this->options[i] = new bool[noPoles];
     }
@@ -321,8 +326,13 @@ string Item::serialize()
         out << this->poles[i]->getScore()<<':';
     }
     out << this->recursionLevel << ':';
-    out << this->solution << '|';
-    out << this->executedStep;
+    out << this->solution << ':';
+    if(this->executedStep == NULL){
+        out << "0:0:";
+    }else{
+        out << this->executedStep[0] << ':';
+        out << this->executedStep[1] << ':';
+    }
 
     return out.str();
 }

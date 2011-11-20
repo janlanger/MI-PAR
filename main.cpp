@@ -126,22 +126,8 @@ int main ( int argc, char** argv )
     n = atoi ( argv[1] );
     s = atoi ( argv[2] );
     f = atoi ( argv[3] );
+    limit = getUpperBound ( n,s );
 
-    if ( s < max ( 3, n/4 ) )
-    {
-        cout << "[ERROR]: Invalid number of poles. The minimum is "<< max ( 3, n/4 ) << '.' << endl;
-        return 2;
-    }
-
-    if ( f < 1 || f > s )
-    {
-        cout << "[ERROR]: Invalid final pole. It has to be from interval [1," << s << "]" << endl;
-        return 3;
-    }
-    cout << "SETUP" << endl;
-    cout << "Number of discs: " << n << endl;
-    cout << "Number of poles: " << s << endl;
-    cout << "Final pole: " << f << endl << endl;
     f--;
 
 
@@ -151,9 +137,27 @@ int main ( int argc, char** argv )
 
     successor = (myRank + 1) % p;
     ancestor= (myRank + (p-1)) % p;
+    cout << "Hi! I'm P" << myRank << endl << endl;
 
     if ( myRank == MASTER_CPU )
     {
+
+        if ( s < max ( 3, n/4 ) )
+        {
+            cout << "[ERROR]: Invalid number of poles. The minimum is "<< max ( 3, n/4 ) << '.' << endl;
+            return 2;
+        }
+
+        if ( f < 1 || f > s )
+        {
+            cout << "[ERROR]: Invalid final pole. It has to be from interval [1," << s << "]" << endl;
+            return 3;
+        }
+        cout << "SETUP" << endl;
+        cout << "Number of discs: " << n << endl;
+        cout << "Number of poles: " << s << endl;
+        cout << "Final pole: " << f+1 << endl << endl;
+
         myColor = COLOR_W;
         runtime = clock();
         Item* initial = generateInitState ( n, s, f );
@@ -179,7 +183,7 @@ int main ( int argc, char** argv )
             cout << "\r\n";
         }
         // -- // vypis zakladni konfigurace
-        limit = getUpperBound ( n,s );
+
         cout << endl <<"Upper bound is: " << limit << endl<<endl;
 
 
@@ -193,211 +197,249 @@ int main ( int argc, char** argv )
         MPI_Isend (&message, 1, MPI_CHAR, MASTER_CPU, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &request);
         int size;
         MPI_Recv(&size, 1, MPI_INT, MASTER_CPU, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &status);
-        free(message);
-        char* resp =  new char[size];
-        MPI_Recv(&resp, size, MPI_CHAR, MASTER_CPU, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
+        cout<< 'P'<<myRank<<" Master have for me work. Size is " << size << '.' << endl << endl;
+        char resp[size];
+        MPI_Recv(&resp, 1000, MPI_CHAR, MASTER_CPU, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
+        cout<< 'P'<<myRank<<" The work from master is " << '|' << resp << '|' << endl << endl;
         string sp = string(resp);
+        cout << "P"<< myRank<< "  Creating new item" << endl;
         item = new Item(n, s, sp);
+        cout << "Item created"<<endl;
         item->setFinalPole(f);
+        cout << "Final pole seted up"<<endl;
         item->generateOptions();
+        cout << "Generated options"<< endl;
         stack->push(item);
+        cout<< 'P'<<myRank<<" finaly get some work" << endl << endl;
         myColor = COLOR_W;
     }
 
+
     try
     {
-        while ( !stack->isEmpty() )
+        bool superEnd = false;
+        while (!superEnd)
         {
-            item = stack->head();
-            if ( n == item->getPole ( f )->getNoDiscs() )
+            while ( !stack->isEmpty() )
             {
-                limit = item->getRecursionLevel() - 1;
-                if ( limit < 0 )
+                if (myRank!= MASTER_CPU)
+                    cout<< 'P'<<myRank<<" is solving something" << endl << endl;
+                item = stack->head();
+                if (myRank != MASTER_CPU)
                 {
-                    cout << "Initial state is also final state. Abort." << endl;
+                    cout<< "tuto " << f<<endl;
+                    cout<<myRank<<endl;
+                    cout<< 'P'<< myRank << " Number of discs on final pole "<< f<<" is ";// << item->getPole ( f )->getNoDiscs() << endl << endl;
                 }
-                else
+                if ( n == item->getPole ( f )->getNoDiscs() )
                 {
-                    cout << "[P"<<myRank<<"]Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
-                    solution = item->getSolution();
-
-                    // nasel jsem reseni
-                    // musim ho poslat MASTERU vcetne limitu
-                    // Master pak musi vsem poslat novy limit
-
-                    if (myRank != MASTER_CPU) {
-                        MPI_Send(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD);
-                        const char* message = solution.c_str();
-                        int length = strlen(message);
-                        MPI_Send( &length, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_SIZE, MPI_COMM_WORLD);
-                        
-                        MPI_Send(&message, length, MPI_CHAR, MASTER_CPU, TAG_SOLUTION_SOLUTION, MPI_COMM_WORLD);
-                    } else {
-                        for (int i = 1; i < p; i++) {
-                            MPI_Isend(&limit, 1, MPI_INT, i, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &request);
-                        }
+                    limit = item->getRecursionLevel() - 1;
+                    if ( limit < 0 )
+                    {
+                        cout << "Initial state is also final state. Abort." << endl;
                     }
-                }
-            }
-            if ( !item->hasOption() )
-            {
-                delete stack->pop();
-                continue;
-            }
-            if (myRank == MASTER_CPU) {
-                MPI_Iprobe ( MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
-                if (flag) {
-                    int newLimit;
-                    int size;
-                    int finder;
-                    int length;
+                    else
+                    {
+                        cout << "[P"<<myRank<<"] Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+                        solution = item->getSolution();
 
+                        // nasel jsem reseni
+                        // musim ho poslat MASTERU vcetne limitu
+                        // Master pak musi vsem poslat novy limit
 
-                    MPI_Recv(&newLimit, 1, MPI_INT, MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
-//                     MPI_Get_count(&status, MPI_CHAR, &length);
-                    MPI_Recv(&size, 1, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SIZE, MPI_COMM_WORLD, &status);
-                    char newSolution[size];
-                    MPI_Recv(&newSolution, size, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SIZE, MPI_COMM_WORLD, &status);
-
-                    if ( newLimit < limit) {
-                        solution.assign(newSolution);
-                        for (int i = 1; i < p; i++) {
-                            if (i != status.MPI_SOURCE) {
+                        if (myRank != MASTER_CPU) {
+                            MPI_Send(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD);
+                            const char* message = solution.c_str();
+                            int length = strlen(message);
+                            MPI_Send( &length, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_SIZE, MPI_COMM_WORLD);
+                            MPI_Send(&message, length, MPI_CHAR, MASTER_CPU, TAG_SOLUTION_SOLUTION, MPI_COMM_WORLD);
+                        } else {
+                            for (int i = 1; i < p; i++) {
                                 MPI_Isend(&limit, 1, MPI_INT, i, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &request);
                             }
                         }
                     }
-
                 }
-            } else {
-                MPI_Iprobe ( MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
+                if (myRank != MASTER_CPU)
+                    cout<< 'P'<<myRank<<" aaaaaa" << endl << endl;
+                if ( !item->hasOption() )
+                {
+                    delete stack->pop();
+                    continue;
+                }
+                if (myRank == MASTER_CPU) {
+                    MPI_Iprobe ( MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        int newLimit;
+                        int size;
+
+
+                        MPI_Recv(&newLimit, 1, MPI_INT, MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
+//                     MPI_Get_count(&status, MPI_CHAR, &length);
+                        MPI_Recv(&size, 1, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SIZE, MPI_COMM_WORLD, &status);
+                        char newSolution[size];
+                        MPI_Recv(&newSolution, size, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SIZE, MPI_COMM_WORLD, &status);
+
+                        if ( newLimit < limit) {
+                            solution.assign(newSolution);
+                            for (int i = 1; i < p; i++) {
+                                if (i != status.MPI_SOURCE) {
+                                    MPI_Isend(&limit, 1, MPI_INT, i, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &request);
+                                }
+                            }
+                        }
+
+                    }
+                } else {
+                    MPI_Iprobe ( MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        MPI_Recv(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
+                    }
+                }
+
+                if ( item->getRecursionLevel() >= limit || ( item->getRecursionLevel() > limit - ( n- item->getPole ( f )->getNoDiscs() ) ) )
+                {
+                    delete stack->pop();
+                    if (myRank!= MASTER_CPU) {
+                        cout << "RECURSION LEVEL = " << item->getRecursionLevel()<<endl;
+                        cout << "LIMIT = "<< limit<<endl;
+                        cout << "tady je to" << endl;
+                    }
+                    continue;
+                }
+
+                while ( item->hasOption() )
+                {
+                    if (myRank!= MASTER_CPU)
+                        cout<< 'P'<<myRank<<" generation options" << endl << endl;
+                    int* step = item->popOption();
+                    next = new Item ( *item );
+                    next->incrementRecursionLevel();
+                    next->doStep ( step );
+                    next->generateOptions();
+                    stack->push ( next );
+                }
+                MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
+                if ( flag )
+                {
+                    cout<< "P" << myRank << " someone need work"<<endl;
+                    int length = 1*sizeof(int);
+                    char message[length];
+                    MPI_Recv(&message, 1, MPI_CHAR, MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &status);
+                    MPI_Get_count(&status, MPI_CHAR, &length);
+                    cout<< "P" << myRank << " it is P" << status.MPI_SOURCE << endl;
+                    //tady bych se mel podivat jestli po me nekdo nechce praci
+                    if ( !stack->isEmpty() )
+                    {
+                        string serializedItem = item->serialize();
+                        char message[serializedItem.size()+1];
+                        strcpy(message, serializedItem.c_str());
+                        int length = strlen(message);
+                        item = stack->pop();
+                        // Posilam velikosti budouci nove prace
+                        MPI_Send(&length, 1, MPI_INT, status.MPI_SOURCE, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD);
+                        // Posilam samotnou novou praci
+                        cout << "P"<<myRank << " i'm sending work "<< message << endl << endl;
+                        MPI_Send (message, length+1, MPI_CHAR, status.MPI_SOURCE, TAG_NEW_WORK, MPI_COMM_WORLD);
+                        // mam jeste praci. Mel bych se podivat jestli nekdo nechce dalsi praci a pripadne mu ji dat
+                    }
+                    else
+                    {
+                        int message = 1;
+                        MPI_Isend(&message, 1, MPI_INT, status.MPI_SOURCE, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &request);
+                    }
+                }
+                // Musim kontrolovat zda uz neko neposila peska
+                MPI_Iprobe ( ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &flag, &status );
                 if (flag) {
-                    MPI_Recv(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
+                    int pesekColor;
+                    MPI_Recv(&pesekColor, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
+                    pesekColor = myColor && pesekColor;
+                    MPI_Isend(&pesekColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD, &request);
                 }
             }
-
-            if ( item->getRecursionLevel() >= limit || ( item->getRecursionLevel() > limit - ( n- item->getPole ( f )->getNoDiscs() ) ) )
-            {
-                delete stack->pop();
+            if(1 == p){
+                superEnd = true;
                 continue;
             }
+            myColor = COLOR_B;
+            cout<< 'P'<<myRank<<" has no more work" << endl << endl;
+//             cout << clock() << endl;
+            int dest = 0;
+            cout << dest << endl;
+            for (int i = 0; i<p; i++) {
+                int source = (dest + i) % p;
+                char message = '0';
+                MPI_Isend (&message,  1, MPI_CHAR, source, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &request);
 
-            while ( item->hasOption() )
-            {
-                int* step = item->popOption();
-                next = new Item ( *item );
-                next->incrementRecursionLevel();
-                next->doStep ( step );
-                next->generateOptions();
-                stack->push ( next );
-            }
-            MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
-            if ( flag )
-            {
-                int length = 1*sizeof(int);
-                char message[length];
-                MPI_Recv(&message, 0, MPI_CHAR, MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &status);
-                MPI_Get_count(&status, MPI_CHAR, &length);
-                //tady bych se mel podivat jestli po me nekdo nechce praci
-                if ( !stack->isEmpty() )
-                {
-                    const char* message = item->serialize().c_str();
-                    int length = strlen(message);
-                    item = stack->pop();
-                    // Posilam velikosti budouci nove prace
-                    MPI_Send(&length, 1, MPI_INT, status.MPI_SOURCE, TAG_NEW_WORK, MPI_COMM_WORLD);
-                    // Posilam samotnou novou praci
-                    MPI_Send (&message, length, MPI_CHAR, status.MPI_SOURCE, TAG_NEW_WORK, MPI_COMM_WORLD);
-                    // mam jeste praci. Mel bych se podivat jestli nekdo nechce dalsi praci a pripadne mu ji dat
-                }
-                else
-                {
-                    // musim odpovedet ze uz praci taky nemam
-                }
-            }
-            if (stack->isEmpty()) {
-                myColor = COLOR_B;
-
-                /*
-                * Nemam uz zadne veci na reseni, Co mam dale resit?
-                *
-                */
-                /* Urcuje toho, koho budu zadat o praci */
-                int dest = clock() % p;
-                for (int i = 0; i<p; i++) {
-                    int source = (dest + i) % p;
-                    char message = '0';
-                    MPI_Isend (&message,  1, MPI_CHAR, source, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &request);
-
-                    bool end = false;
-                    while (!end) {
-                        // Nova prace
-                        MPI_Iprobe ( source, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &flag, &status );
-                        if (flag) {
-                            int size;
-                            MPI_Recv(&size, 1, MPI_INT, source, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &status);
-                            char message[size];
-                            MPI_Recv(&message, size, MPI_CHAR, source, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
-                            string serialized = string(message);
-                            item = new Item(n, s, serialized);
-                            item->setFinalPole(f);
-                            item->generateOptions();
-                            stack->push(item);
-                            myColor = COLOR_W;
-                            end = true;
-                        }
-                        // Pesek
-                        // Ja jsem neposilal, takze ho jenom prepocitam a predam dal
-                        MPI_Iprobe ( ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &flag, &status );
-                        if (flag) {
-                            int pesekColor;
-                            MPI_Recv(&pesekColor, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
-                            pesekColor = myColor && pesekColor;
-                            MPI_Isend(&pesekColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD, &request);
-                        }
-                        // Ten koho jsem zadal o praci hlasi ze uz praci nema
-                        MPI_Iprobe ( source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
-                        if (flag) {
-                            int message;
-                            MPI_Recv(&message, 1, MPI_INT, source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &status);
-                            end = true;
-                        }
-
-
-                        MPI_Iprobe ( ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &flag, &status );
-                        if (flag) {
-                            // Predchozi mi poslal ukonceni vypoctu. Koncim se vsim
-                            int message;
-                            MPI_Recv(&message, 1, MPI_INT, ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &status);
-                            MPI_Send(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD);
-                            if ( myRank == MASTER_CPU )
-                            {
-                                cout << "RUN TIME: " << ( double ) ( clock() - runtime ) / CLOCKS_PER_SEC << endl << endl;
-                                cout << "-------------" << endl;
-                                cout << "We have solution!" << endl;
-                                cout << "Number of moves: " << ( limit+1 ) << endl;
-                                cout << solution << endl;
-                            }
-                            MPI_Finalize();
-                            return 0;
-                        }
+                bool end = false;
+                while (!end) {
+                    // Nova prace
+                    MPI_Iprobe ( source, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        int size;
+                        MPI_Recv(&size, 1, MPI_INT, source, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &status);
+                        char message[size];
+                        MPI_Recv(&message, size, MPI_CHAR, source, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
+                        string serialized = string(message);
+                        item = new Item(n, s, serialized);
+                        item->setFinalPole(f);
+                        item->generateOptions();
+                        stack->push(item);
+                        myColor = COLOR_W;
+                        end = true;
                     }
-                }
-                // Zeptal jsem se vsech a nikdo mi nedal praci
-                // Musim zacit posilat peska
-                if (myColor = COLOR_B) {
-                    MPI_Send(&myColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD);
-                    int pesek;
-                    // cekam dokud se mi pesek nevrati
-                    MPI_Recv(&pesek, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
-                    if (pesek == COLOR_B) {
-                        // pesek se vratil a uz nikdo nema praci => VSECHNY VYPNU
-                        MPI_Send(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD);
+                    // Pesek
+                    // Ja jsem neposilal, takze ho jenom prepocitam a predam dal
+                    MPI_Iprobe ( ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        int pesekColor;
+                        MPI_Recv(&pesekColor, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
+                        pesekColor = myColor && pesekColor;
+                        MPI_Isend(&pesekColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD, &request);
+                    }
+                    // Ten koho jsem zadal o praci hlasi ze uz praci nema
+                    MPI_Iprobe ( source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        int message;
+                        MPI_Recv(&message, 1, MPI_INT, source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &status);
+                        end = true;
+                    }
+
+
+                    MPI_Iprobe ( ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &flag, &status );
+                    if (flag) {
+                        // Predchozi mi poslal ukonceni vypoctu. Koncim se vsim
                         int message;
                         MPI_Recv(&message, 1, MPI_INT, ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &status);
-                    } else {
-                        // pesek se vratil ale prace jeste je
+                        MPI_Send(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD);
+                        if ( myRank == MASTER_CPU )
+                        {
+                            cout << "RUN TIME: " << ( double ) ( clock() - runtime ) / CLOCKS_PER_SEC << endl << endl;
+                            cout << "-------------" << endl;
+                            cout << "We have solution!" << endl;
+                            cout << "Number of moves: " << ( limit+1 ) << endl;
+                            cout << solution << endl;
+                        }
+                        MPI_Finalize();
+                        return 0;
                     }
+                }
+            }
+            // Zeptal jsem se vsech a nikdo mi nedal praci
+            // Musim zacit posilat peska
+            if (myColor == COLOR_B) {
+                MPI_Send(&myColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD);
+                int pesek;
+                // cekam dokud se mi pesek nevrati
+                MPI_Recv(&pesek, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
+                if (pesek == COLOR_B) {
+                    // pesek se vratil a uz nikdo nema praci => VSECHNY VYPNU
+                    MPI_Send(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD);
+                    int message;
+                    MPI_Recv(&message, 1, MPI_INT, ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &status);
+                } else {
+                    // pesek se vratil ale prace jeste je
                 }
             }
         }
