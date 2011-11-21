@@ -212,7 +212,7 @@ int main ( int argc, char** argv )
 #ifdef DEBUG        
         cout << "[P"<< myRank<< "] Creating new item" << endl;
 #endif        
-        item = new Item(n, s, sp);
+        item = new Item(s, n, sp);
 #ifdef DEBUG        
         cout << "Item created"<<endl;
 #endif        
@@ -419,7 +419,7 @@ int main ( int argc, char** argv )
                         cout<< "[P"<<myRank<<"] The work from P" << source << " is " << '|' << message << '|' << endl << endl;
 #endif                        
                         string serialized = string(message);
-                        Item* item = new Item(n, s, serialized);
+                        Item* item = new Item(s, n, serialized);
                         item->setFinalPole(f);
                         item->generateOptions();
                         stack->push(item);
