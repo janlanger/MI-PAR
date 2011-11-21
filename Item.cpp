@@ -26,7 +26,7 @@ Item::Item(int noPoles, int noDiscs) {
 	this->noPoles = noPoles;
 	this->executedStep = NULL;
 	this->noDiscs = noDiscs;
-    this->poles = new Pole*[noDiscs];
+    this->poles = new Pole*[noPoles];
     this->options = new bool *[noPoles];
 	for(int i=0; i<noPoles; i++) {
 		this->options[i] = new bool[noPoles];
