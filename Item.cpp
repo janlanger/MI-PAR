@@ -65,11 +65,11 @@ Item::Item(int noPoles, int noDiscs, string &serialized) {
                     }
                     break;
                 case 1:
-                    this->solution = serialized.substr(from,i-from).c_str();
+                    this->recursionLevel = atoi(serialized.substr(from,i-from).c_str());
                     part++;
                     break;
                 case 2:
-                    this->recursionLevel = atoi(serialized.substr(from,i-from).c_str());
+                    this->solution = serialized.substr(from,i-from).c_str();
                     part++;
                     break;
                 case 3:
@@ -85,6 +85,9 @@ Item::Item(int noPoles, int noDiscs, string &serialized) {
         }
     }
 
+    
+    cout<< "From " << serialized << " solution is |"<<this->solution<<"|"<<endl;
+    cout << "The last executed step is "<< this->executedStep[1]<<endl;
     for (int i=0; i<noPoles; i++) {
         this->options[i] = new bool[noPoles];
     }
