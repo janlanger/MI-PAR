@@ -33,6 +33,7 @@ using namespace std;
 
 #define COLOR_W 0
 #define COLOR_B 1
+// #define DEBUG 1
 
 Item* generateInitState ( int n, int s, int f )
 {
@@ -199,20 +200,34 @@ int main ( int argc, char** argv )
         MPI_Isend (&message, 1, MPI_INT, MASTER_CPU, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &request);
         int size;
         MPI_Recv(&size, 1, MPI_INT, MASTER_CPU, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &status);
+#ifdef DEBUG
         cout<< "[P"<<myRank<<"] Master has work for me. Size is " << size << '.' << endl << endl;
+#endif        
         char resp[size];
         MPI_Recv(&resp, size+1, MPI_CHAR, MASTER_CPU, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
+#ifdef DEBUG
         cout<< "[P"<<myRank<<"] The work from master is " << '|' << resp << '|' << endl << endl;
+#endif        
         string sp = string(resp);
+#ifdef DEBUG        
         cout << "[P"<< myRank<< "] Creating new item" << endl;
+#endif        
         item = new Item(n, s, sp);
+#ifdef DEBUG        
         cout << "Item created"<<endl;
+#endif        
         item->setFinalPole(f);
+#ifdef DEBUG        
         cout << "Final pole seted up"<<endl;
+#endif        
         item->generateOptions();
+#ifdef DEBUG
         cout << "Generated options"<< endl;
+#endif        
         stack->push(item);
+#ifdef DEBUG
         cout<< "[P"<<myRank<<"] finaly get some work" << endl << endl;
+#endif        
         myColor = COLOR_W;
         //free(resp);
     }
@@ -238,7 +253,9 @@ int main ( int argc, char** argv )
                     }
                     else
                     {
+#ifdef DEBUG
                         cout << "[P"<<myRank<<"] Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+#endif
                         solution = item->getSolution();
 
                         // nasel jsem reseni
@@ -264,18 +281,23 @@ int main ( int argc, char** argv )
                 if (myRank == MASTER_CPU) {
                     MPI_Iprobe ( MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
+#ifdef DEBUG
                         cout << "[P"<<myRank<<"] P"<< status.MPI_SOURCE << " found solution"<<endl;
+#endif                        
                         int newLimit;
                         int size;
 
 
                         MPI_Recv(&newLimit, 1, MPI_INT, MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
+#ifdef DEBUG                        
                         cout << "[P"<<myRank<<"] Previous limit was "<< limit<< " new limit is " << newLimit <<endl;
+#endif                        
                         MPI_Recv(&size, 1, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SIZE, MPI_COMM_WORLD, &status);
                         char newSolution[size];
                         MPI_Recv(newSolution, size, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SOLUTION, MPI_COMM_WORLD, &status);
-
+#ifdef DEBUG
                         cout << "[P"<<myRank<<"] Solution is :"<< endl << newSolution<<endl<<endl;
+#endif                        
                         if ( newLimit < limit) {
                             solution.assign(newSolution);
                             for (int i = 1; i < p; i++) {
@@ -291,7 +313,9 @@ int main ( int argc, char** argv )
                     MPI_Iprobe ( MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
                         MPI_Recv(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
+#ifdef DEBUG                      
                         cout << "[P" << myRank << "] Master send me new limit= " << limit;
+#endif                        
                     }
                 }
                 if ( !item->hasOption() )
@@ -318,11 +342,15 @@ int main ( int argc, char** argv )
                 MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
                 if ( flag )
                 {
+#ifdef DEBUG                
                     cout<< "[P" << myRank << "] someone need work"<<endl;
+#endif                    
                     int message;
                     MPI_Recv(&message, 1, MPI_INT, MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &status);
 //                     MPI_Get_count(&status, MPI_CHAR, &length);
+#ifdef DEBUG                    
                     cout<< "[P" << myRank << "] it is [P" << status.MPI_SOURCE << "]" << endl;
+#endif                    
                     //tady bych se mel podivat jestli po me nekdo nechce praci
                     if ( !stack->isEmpty() )
                     {
@@ -334,7 +362,9 @@ int main ( int argc, char** argv )
                         // Posilam velikosti budouci nove prace
                         MPI_Send(&length, 1, MPI_INT, status.MPI_SOURCE, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD);
                         // Posilam samotnou novou praci
+#ifdef DEBUG                        
                         cout << "[P"<<myRank << "] i'm sending work "<< message << endl << endl;
+#endif                        
                         MPI_Send (message, length+1, MPI_CHAR, status.MPI_SOURCE, TAG_NEW_WORK, MPI_COMM_WORLD);
 //                         free(message);
                     }
@@ -358,17 +388,20 @@ int main ( int argc, char** argv )
                 continue;
             }
             myColor = COLOR_B;
+#ifdef DEBUG            
             cout<< 'P'<<myRank<<" has no more work" << endl << endl;
+#endif            
 //             cout << clock() << endl;
             int dest = 0;
-            cout << dest << endl;
             for (int i = 0; i<=p; i++) {
                 int source = (dest + i) % p;
                 if (source == myRank) {
                     continue;
                 }
                 int message = 1;
+#ifdef DEBUG                
                 cout << "[P" << myRank << "] is asking P" << source << " for new work." << endl;
+#endif                
                 MPI_Isend (&message,  1, MPI_INT, source, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &request);
                 bool end = false;
                 while (!end) {
@@ -377,10 +410,14 @@ int main ( int argc, char** argv )
                     if (flag) {
                         int size;
                         MPI_Recv(&size, 1, MPI_INT, source, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD, &status);
+#ifdef DEBUG                        
                         cout<< "[P"<<myRank<<"] P"<<source<<" has work for me. Size is " << size << '.' << endl << endl;
+#endif                        
                         char message[size];
                         MPI_Recv(message, size+1, MPI_CHAR, source, TAG_NEW_WORK, MPI_COMM_WORLD, &status);
+#ifdef DEBUG                        
                         cout<< "[P"<<myRank<<"] The work from P" << source << " is " << '|' << message << '|' << endl << endl;
+#endif                        
                         string serialized = string(message);
                         Item* item = new Item(n, s, serialized);
                         item->setFinalPole(f);
@@ -394,7 +431,9 @@ int main ( int argc, char** argv )
                     // Ja jsem neposilal, takze ho jenom prepocitam a predam dal
                     MPI_Iprobe ( ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
+#ifdef DEBUG                        
                         cout << "[P" << myRank << "] P" << status.MPI_SOURCE << " has started with pesek." << endl;
+#endif                        
                         int pesekColor;
                         MPI_Recv(&pesekColor, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
                         pesekColor = myColor && pesekColor;
@@ -403,7 +442,9 @@ int main ( int argc, char** argv )
                     // Ten koho jsem zadal o praci hlasi ze uz praci nema
                     MPI_Iprobe ( source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
+#ifdef DEBUG                        
                         cout << "[P" << myRank << "] Damn! P" << status.MPI_SOURCE << " has no more work for me." << endl;
+#endif                        
                         int message;
                         MPI_Recv(&message, 1, MPI_INT, source, TAG_NO_MORE_WORK, MPI_COMM_WORLD, &status);
                         end = true;
@@ -411,7 +452,9 @@ int main ( int argc, char** argv )
                     // Nekdo me zada o praci
                     MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
+#ifdef DEBUG                        
                         cout << "[P" << myRank << "] P" << status.MPI_SOURCE << " is asking me for new work but I have no more work even for myself." << endl;
+#endif                        
                         int message;
                         MPI_Recv(&message, 1, MPI_INT, status.MPI_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &status);
                         message = 1;
@@ -422,7 +465,9 @@ int main ( int argc, char** argv )
                     MPI_Iprobe ( ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
                         // Predchozi mi poslal ukonceni vypoctu. Koncim se vsim
+#ifdef DEBUG                        
                         cout << "[P" << myRank << "] P" << status.MPI_SOURCE << " is terminating program." << endl;
+#endif                        
                         int message;
                         MPI_Recv(&message, 1, MPI_INT, ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &status);
                         MPI_Isend(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD, &request);
@@ -439,18 +484,26 @@ int main ( int argc, char** argv )
                     }
                 }
             }
+#ifdef DEBUG            
             cout << "[P" << myRank << "] New work handeling ends. My state is " << myColor << endl;
+#endif            
             // Zeptal jsem se vsech a nikdo mi nedal praci
             // Musim zacit posilat peska
             if (myColor == COLOR_B) {
+#ifdef DEBUG                
                 cout << "[P" << myRank << "] No more work left so lets start with pesek."<<endl;
+#endif                
                 MPI_Send(&myColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD);
                 int pesek;
                 // cekam dokud se mi pesek nevrati
                 MPI_Recv(&pesek, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
+#ifdef DEBUG                
                 cout << "[P" << myRank << "] Pesek has returned. Its color is "<<pesek<<endl;
+#endif                
                 if (pesek == COLOR_B) {
+#ifdef DEBUG                    
                     cout << "[P" << myRank << "] So lets terminate application."<<endl;
+#endif                    
                     // pesek se vratil a uz nikdo nema praci => VSECHNY VYPNU
                     MPI_Send(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD);
                     int message;
