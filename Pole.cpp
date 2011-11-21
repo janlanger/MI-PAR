@@ -25,6 +25,7 @@ void Pole::init(short maxNoDiscs) {
     for(int i=0; i<maxNoDiscs; i++) {
         this->discs[i] = -1;
     }
+    this->discsOnPole = 0;
 }
 
 

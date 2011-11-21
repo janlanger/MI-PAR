@@ -47,7 +47,7 @@ Item::Item(int noPoles, int noDiscs, string &serialized) {
     this->noPoles = noPoles;
     this->executedStep = new int[2];
     this->noDiscs = noDiscs;
-    this->poles = new Pole*[noDiscs];
+    this->poles = new Pole*[noPoles];
     this->options = new bool *[noPoles];
 
     int from = 0;
@@ -110,10 +110,14 @@ Item::Item(const Item& orig) {
     for (int i = 0; i<this->noPoles; i++) {
         this->poles[i] = orig.poles[i];
     }
+    if (this->allPoles == NULL) {
+        this->generateAllPoles(orig.noDiscs);
+    }
 }
 
 
 Item::~Item() {
+//     cout<< "Destruction of item ";
     for (int i = 0; i<this->noPoles; i++) {
         delete[] this->options[i];
     }
@@ -123,8 +127,9 @@ Item::~Item() {
     } catch (const char* str) {}
     delete[] this->executedStep;
     if (this->previous == NULL) {
-        delete[] this->allPoles;
+//         delete[] this->allPoles;   // HERE IS THE BULLSHIT. This seems to not work correctly
     }
+//     cout<< "DONE"<<endl;
 }
 
  Item* Item::getPrevious() {
