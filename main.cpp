@@ -33,7 +33,7 @@ using namespace std;
 
 #define COLOR_W 0
 #define COLOR_B 1
-// #define DEBUG 1
+#define DEBUG 1
 
 Item* generateInitState ( int n, int s, int f )
 {
@@ -242,7 +242,7 @@ int main ( int argc, char** argv )
             {
 //                 if(myRank != MASTER_CPU)
 //                 cout << "[P" << myRank << "] is solving something"<<endl;
-                item = stack->head();
+                item = stack->pop();
 
                 if ( n == item->getPole ( f )->getNoDiscs() )
                 {
@@ -320,13 +320,13 @@ int main ( int argc, char** argv )
                 }
                 if ( !item->hasOption() )
                 {
-                    delete stack->pop();
+                    delete item;
                     continue;
                 }
 
                 if ( item->getRecursionLevel() >= limit || ( item->getRecursionLevel() > limit - ( n- item->getPole ( f )->getNoDiscs() ) ) )
                 {
-                    delete stack->pop();
+                    delete item;
                     continue;
                 }
 
