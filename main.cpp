@@ -91,7 +91,7 @@ int main ( int argc, char** argv )
     MPI_Status status;
 
     /* Run time */
-    clock_t runtime;
+    double t1, t2;
 
     /* Stack */
     Stack* stack = new Stack();
@@ -162,7 +162,6 @@ int main ( int argc, char** argv )
         cout << "Final pole: " << f+1 << endl << endl;
 
         myColor = COLOR_W;
-        runtime = clock();
         Item* initial = generateInitState ( n, s, f );
 
         // vypis zakladni konfigurace
@@ -193,7 +192,12 @@ int main ( int argc, char** argv )
 
         stack->push ( initial );
 
-    } else {
+    } 
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    t1 = MPI_Wtime();
+    
+    if(myRank != MASTER_CPU){
         // konfigurace pro slave procesory
         myColor = COLOR_B;
         int message = 1;
@@ -473,7 +477,8 @@ int main ( int argc, char** argv )
                         MPI_Isend(&myColor, 1, MPI_INT, successor, TAG_TERMINATE, MPI_COMM_WORLD, &request);
                         if ( myRank == MASTER_CPU )
                         {
-                            cout << "RUN TIME: " << ( double ) ( clock() - runtime ) / CLOCKS_PER_SEC << endl << endl;
+                            t2 = MPI_Wtime();
+                            cout << "RUN TIME: " <<  ( t2 - t1) << endl << endl;
                             cout << "-------------" << endl;
                             cout << "We have solution!" << endl;
                             cout << "Number of moves: " << ( limit+1 ) << endl;
@@ -510,7 +515,8 @@ int main ( int argc, char** argv )
                     MPI_Recv(&message, 1, MPI_INT, ancestor, TAG_TERMINATE, MPI_COMM_WORLD, &status);
                     if ( myRank == MASTER_CPU )
                     {
-                        cout << "RUN TIME: " << ( double ) ( clock() - runtime ) / CLOCKS_PER_SEC << endl << endl;
+                        t2 = MPI_Wtime();
+                        cout << "RUN TIME: " <<  ( t2 - t1)  << endl << endl;
                         cout << "-------------" << endl;
                         cout << "We have solution!" << endl;
                         cout << "Number of moves: " << ( limit+1 ) << endl;
