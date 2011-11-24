@@ -15,7 +15,6 @@
 #include "Item.h"
 #include "Pole.h"
 #include "Stack.h"
-#include "SolutionStep.h"
 //#include "mpi.h"
 
 using namespace std;
@@ -95,7 +94,6 @@ int main(int argc, char** argv) {
     f--;
     clock_t runtime = clock();
 
-    SolutionStep* solution = NULL;
     string solution;
     Item* initial = generateInitState(n, s, f, argv[4]);
     if (initial == NULL) {
@@ -171,8 +169,6 @@ int main(int argc, char** argv) {
     cout << "I have solution! \n";
     cout << "Number of moves: " << (limit+1) << "\r\n";
     cout << solution << endl;
-    cin.clear();
-    cin.ignore(2);
 //  _CrtDumpMemoryLeaks();
     return 0;
 }
