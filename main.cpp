@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
     try {
         while (!stack->isEmpty())
         {
-            item = stack->head();
+            item = stack->pop();
             if (n == item->getPole(f)->getNoDiscs()) {
                 limit = item->getRecursionLevel() - 1;
                 if (limit < 0) {
@@ -143,11 +143,11 @@ int main(int argc, char** argv) {
                 }
             }
             if (!item->hasOption()) {
-                delete stack->pop();
+                delete item;
                 continue;
             }
             if (item->getRecursionLevel() >= limit || ( item->getRecursionLevel() > limit - (n- item->getPole(f)->getNoDiscs()))) {
-                delete stack->pop();
+                delete item;
                 continue;
             }
 
