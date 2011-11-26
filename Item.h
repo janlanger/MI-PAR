@@ -36,6 +36,7 @@ public:
     void addDiscOnPole(int pole, int discSize);
     string getSolution();
     string serialize();
+    bool setPole(int pole, int score);
 
 private:
     static Pole* allPoles;
