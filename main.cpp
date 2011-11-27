@@ -361,6 +361,8 @@ int main ( int argc, char** argv )
                     next->generateOptions();
                     stack->push ( next );
                 }
+                delete item;
+                item = NULL;
                 MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
                 if ( flag )
                 {
