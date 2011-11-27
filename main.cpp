@@ -160,6 +160,7 @@ int main(int argc, char** argv) {
                 next->generateOptions();
                 stack->push(next);
             }
+            delete item;
         }
     } catch (const char* str) {
         cout << "Exception: " << str << endl;

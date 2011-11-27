@@ -65,13 +65,14 @@ Item::~Item() {
 	for(int i = 0; i<this->noPoles; i++) {
 		delete[] this->options[i];
 	}
+//        delete &this->solution;
 	delete[] this->options;
 try{
     delete[] this->poles;
 } catch (const char* str) {}
 	delete[] this->executedStep;
     if(this->previous == NULL) {
-        delete[] this->allPoles;
+      //  delete[] this->allPoles;
     }
 }
 
