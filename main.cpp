@@ -378,11 +378,11 @@ int main ( int argc, char** argv )
                     //tady bych se mel podivat jestli po me nekdo nechce praci
                     if ( !stack->isEmpty() )
                     {
-                        string serializedItem = item->serialize();
+                        string serializedItem = stack->pop()->serialize();
                         char message[serializedItem.size()+1];
                         strcpy(message, serializedItem.c_str());
                         int length = strlen(message);
-                        item = stack->pop();
+                       // item = stack->pop();
                         // Posilam velikosti budouci nove prace
                         MPI_Send(&length, 1, MPI_INT, status.MPI_SOURCE, TAG_SIZE_OF_NEW_WORK, MPI_COMM_WORLD);
                         // Posilam samotnou novou praci
