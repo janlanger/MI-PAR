@@ -36,6 +36,7 @@ Item::Item(int noPoles, int noDiscs) {
         this->poles[i] = &this->allPoles[0];
     }
     this->previous = NULL;
+    this->next = NULL;
 }
 
 Item::Item(int noPoles, int noDiscs, string &serialized) {
@@ -89,9 +90,11 @@ Item::Item(int noPoles, int noDiscs, string &serialized) {
         this->options[i] = new bool[noPoles];
     }
     this->previous = NULL;
+    this->next = NULL;
 }
 
 Item::Item(const Item& orig) {
+    this->next = NULL;
     this->noOptions = 0;
     this->finalPole = orig.finalPole;
     this->noPoles = orig.noPoles;
@@ -136,6 +139,15 @@ Item::~Item() {
 void Item::setPrevious(Item* item) {
     this->previous = item;
 }
+
+Item* Item::getNext() {
+    return this->next;
+}
+
+void Item::setNext(Item* item) {
+    this->next = item;
+}
+
 
 Pole* Item::getPole(int id) {
     return this->poles[id];

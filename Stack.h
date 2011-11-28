@@ -18,8 +18,10 @@ public:
     Item* pop();
     Item* head();
     bool isEmpty();
+    Item* popBottom();
 private:
     Item* top;
+    Item* bottom;
 	int size;
 };
 

@@ -23,6 +23,8 @@ public:
     virtual ~Item();
     Item* getPrevious();
     void setPrevious(Item* item);
+    Item* getNext();
+    void setNext(Item* item);
     Pole* getPole(int id);
     void generateOptions();
     bool hasOption();
@@ -48,6 +50,7 @@ private:
     double factorial(double a);
     void getCombinations(short* items, unsigned short itemsSize, unsigned short combinationLength, vector<short> &returned, unsigned short depth,unsigned short margin, vector<vector<short> > &combinations, int &combinationsSize);
     Item* previous;
+    Item* next;
     Pole** poles;
     bool** options;
     int noPoles;
