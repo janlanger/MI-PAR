@@ -37,6 +37,7 @@ using namespace std;
 
 Item* generateInitState ( int n, int s, int f, char* polesConf)
 {
+
     Item* item = new Item(s, n);
     item->setFinalPole(f);
 
@@ -253,15 +254,17 @@ int main ( int argc, char** argv )
         myColor = COLOR_W;
         //free(resp);
     }
-
+    int probeCounter = 0;
 
     try
     {
         bool superEnd = false;
         while (!superEnd)
         {
+            
             while ( !stack->isEmpty() )
             {
+                probeCounter++;
 //                 if(myRank != MASTER_CPU)
 //                 cout << "[P" << myRank << "] is solving something"<<endl;
                 item = stack->pop();
@@ -275,7 +278,9 @@ int main ( int argc, char** argv )
                     }
                     else
                     {
+#ifdef DEBUG
                         cout << "[P"<<myRank<<"] Found solution on " << limit+1 << " moves, lowering upper bound to " << limit << "\n";
+#endif
                         solution = item->getSolution();
 
                         // nasel jsem reseni
@@ -298,6 +303,8 @@ int main ( int argc, char** argv )
                         }
                     }
                 }
+                if((probeCounter % 100) == 0) 
+                {
                 if (myRank == MASTER_CPU) {
                     MPI_Iprobe ( MPI_ANY_SOURCE, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &flag, &status );
                     if (flag) {
@@ -316,9 +323,10 @@ int main ( int argc, char** argv )
                         char newSolution[size];
                         MPI_Recv(newSolution, size, MPI_INT, status.MPI_SOURCE, TAG_SOLUTION_SOLUTION, MPI_COMM_WORLD, &status);
 #ifdef DEBUG
-                        cout << "[P"<<myRank<<"] Solution is :"<< endl << newSolution<<endl<<endl;
+                        //cout << "[P"<<myRank<<"] Solution is :"<< endl << newSolution<<endl<<endl;
 #endif                        
                         if ( newLimit < limit) {
+                            limit = newLimit;
                             solution.assign(newSolution);
                             for (int i = 1; i < p; i++) {
                                 if (i != status.MPI_SOURCE) {
@@ -334,9 +342,10 @@ int main ( int argc, char** argv )
                     if (flag) {
                         MPI_Recv(&limit, 1, MPI_INT, MASTER_CPU, TAG_SOLUTION_NEW_LIMIT, MPI_COMM_WORLD, &status);
 #ifdef DEBUG                      
-                        cout << "[P" << myRank << "] Master send me new limit= " << limit;
+                        cout << "[P" << myRank << "] Master sent me new limit= " << limit << endl;
 #endif                        
                     }
+                }
                 }
                 if ( !item->hasOption() )
                 {
@@ -361,6 +370,7 @@ int main ( int argc, char** argv )
                 }
                 delete item;
                 item = NULL;
+                if((probeCounter % 100) == 0) {
                 MPI_Iprobe ( MPI_ANY_SOURCE, TAG_NEED_MORE_WORK, MPI_COMM_WORLD, &flag, &status );
                 if ( flag )
                 {
@@ -376,7 +386,7 @@ int main ( int argc, char** argv )
                     //tady bych se mel podivat jestli po me nekdo nechce praci
                     if ( !stack->isEmpty() )
                     {
-                        Item* x = stack->popBottom();
+                        Item* x = stack->shift();
                         string serializedItem = x->serialize();
                         char message[serializedItem.size()+1];
                         strcpy(message, serializedItem.c_str());
@@ -405,6 +415,7 @@ int main ( int argc, char** argv )
                     MPI_Recv(&pesekColor, 1, MPI_INT, ancestor, TAG_FINALIZE, MPI_COMM_WORLD, &status);
                     pesekColor = myColor && pesekColor;
                     MPI_Isend(&pesekColor, 1, MPI_INT, successor, TAG_FINALIZE, MPI_COMM_WORLD, &request);
+                }
                 }
             }
             if (1 == p) {
@@ -507,6 +518,10 @@ int main ( int argc, char** argv )
                         MPI_Finalize();
                         return 0;
                     }
+                }
+                if(!stack->isEmpty()) {
+                    //dostal jsem praci, dalsiho uz se neptam
+                    break;
                 }
             }
 #ifdef DEBUG            

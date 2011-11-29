@@ -9,45 +9,57 @@
 #include "Stack.h"
 #include "Item.h"
 
+using namespace std;
+
 Stack::Stack() {
 	this->top = NULL;
-    this->bottom = NULL;
 	this->size = 0;
+        //this->bottom2 = NULL;
 }
 
 Stack::Stack(const Stack& orig) {
-    throw "Copy of stack is not allowed!";
 }
 
 Stack::~Stack() {
 	if(this->top != NULL) {
 		delete this->top;
 	}
+        //cout << "Stack is deleted" <<endl;
 }
 void Stack::push(Item* item){
-	item->setPrevious(this->top);
-    if(this->top != NULL) {
-        this->top->setNext(item);
-    }
-	
-	this->top = item;
-    if(this->bottom == NULL) {
-        this->bottom = item;
-    }
+	if(this->top != NULL) {
+            item->setPrevious(this->top);
+        }
+
+        this->top = item;
+        
 	this->size++;
+      //  cout << "I'm pushing to stack. New top is "<<this->top << ", new bottom " << /*this->bottom2 <<*/" size is "<<this->size << endl;
 	//std::cout << this->size << "\n";
 }
 
 Item* Stack::pop(){
 	Item* item = this->top;
 	this->top = item->getPrevious();
-    if(this->top == NULL) {
-        this->bottom = NULL;
-    } else {
-        this->top->setNext(NULL);
-    }
+        
 	this->size--;
+      //  cout << "Poping item "<<item<<" from stack. Top is now "<<this->top<<", size is " << this->size << endl;
+
 	return item;
+}
+
+Item* Stack::shift() {
+    Item* x = this->top;
+    Item* x2 = this->top->getPrevious();
+    while(x2->getPrevious() != NULL) {
+        x = x->getPrevious();
+        x2 = x2->getPrevious();
+    }
+//    cout << "Shifting from stack" <<endl;
+    x->setPrevious(NULL);
+    size--;
+    return x2;
+    
 }
 
 Item* Stack::head(){
@@ -56,15 +68,5 @@ Item* Stack::head(){
 
 bool Stack::isEmpty(){
 	return (NULL == this->top);
-}
-
-Item* Stack::popBottom()
-{
-    if(this->bottom != NULL) {
-        Item* b = this->bottom;
-        this->bottom = this->bottom->getNext();
-        this->size--;
-        return b;
-    }
 }
 

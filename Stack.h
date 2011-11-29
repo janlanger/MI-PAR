@@ -16,12 +16,11 @@ public:
     virtual ~Stack();
     void push(Item* item);
     Item* pop();
+    Item* shift();
     Item* head();
     bool isEmpty();
-    Item* popBottom();
 private:
     Item* top;
-    Item* bottom;
 	int size;
 };
 
